@@ -34,6 +34,16 @@ a{text-decoration:none;color:inherit}
 .album-artist{font-size:.72rem;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .album-year{font-size:.68rem;color:var(--td);margin-top:2px}
 .album-rating{font-size:.7rem;margin-top:3px}
+.album-list{display:flex;flex-direction:column;gap:10px}
+.album-list-item{display:flex;gap:12px;background:var(--s);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:opacity .15s}
+.album-list-item:active{opacity:.7}
+.album-list-thumb{width:64px;height:64px;flex-shrink:0;background:var(--s2);position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:1.8rem}
+.album-list-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.album-list-body{flex:1;padding:12px 12px 12px 0;min-width:0;display:flex;flex-direction:column;justify-content:center}
+.album-list-title{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.album-list-artist{font-size:.78rem;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.album-list-meta{font-size:.7rem;color:var(--td);margin-top:3px}
+
 .search-bar{display:flex;align-items:center;background:var(--s);border-radius:var(--r);padding:10px 14px;gap:10px;margin-bottom:10px}
 .search-bar input{flex:1;background:none;border:none;color:var(--t);font-size:.95rem;outline:none}
 .search-bar input::placeholder{color:var(--td)}
@@ -100,7 +110,7 @@ textarea.form-input{resize:vertical;min-height:80px}
 .memo-text{font-size:.88rem;line-height:1.6;white-space:pre-wrap}
 .action-row{display:flex;gap:10px}
 .action-row .btn{flex:1}
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px}
 .stat-card{background:var(--s);border-radius:var(--r);padding:16px;text-align:center}
 .stat-val{font-size:1.8rem;font-weight:800;color:var(--ac)}
 .stat-label{font-size:.72rem;color:var(--ts);margin-top:4px}
@@ -152,6 +162,7 @@ textarea.form-input{resize:vertical;min-height:80px}
 <header class="header">
   <button class="hbtn" id="headerBack" onclick="goBack()" style="display:none">←</button>
   <h1 id="headerTitle">💿 LP Collection</h1>
+  <button class="hbtn" id="viewToggleBtn" onclick="toggleView()" title="뷰 전환">⊞</button>
   <button class="hbtn" id="headerRight" style="display:none"></button>
 </header>
 
@@ -201,6 +212,8 @@ textarea.form-input{resize:vertical;min-height:80px}
   <div class="stats-grid" id="statsGrid"></div>
   <div class="chart-wrap"><div class="chart-title">🎵 장르 분포</div><canvas id="genreChart" style="max-height:220px"></canvas></div>
   <div class="chart-wrap"><div class="chart-title">📅 연도별 LP 수</div><canvas id="yearChart" style="max-height:200px"></canvas></div>
+  <div class="chart-wrap"><div class="chart-title">📆 월별 구매 추이</div><canvas id="monthChart" style="max-height:200px"></canvas></div>
+  <div class="chart-wrap"><div class="chart-title">💰 가장 비싼 LP TOP 5</div><div class="top-list" id="topPrice"></div></div>
   <div class="chart-wrap"><div class="chart-title">🏆 아티스트 TOP 10</div><div class="top-list" id="topArtists"></div></div>
 </div>
 
@@ -288,6 +301,16 @@ textarea.form-input{resize:vertical;min-height:80px}
       <button class="btn btn-secondary" onclick="closeModal('delModal')">취소</button>
     </div>
   </div>
+  <div class="modal-bg" id="moveModal" onclick="if(event.target===this)closeModal('moveModal')">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title" id="moveModalTitle">위시리스트로 이동</div>
+      <p style="font-size:.85rem;color:var(--ts);margin-bottom:16px" id="moveModalDesc"></p>
+      <button class="btn btn-primary" onclick="confirmMoveToWish(false)" style="margin-bottom:8px">1장만 위시로 이동</button>
+      <button class="btn btn-secondary" onclick="confirmMoveToWish(true)" style="margin-bottom:8px">전부 위시로 이동</button>
+      <button class="btn btn-outline" onclick="closeModal('moveModal')">취소</button>
+    </div>
+  </div>
 </div>
 
 <!-- 위시 추가 -->
@@ -310,9 +333,10 @@ textarea.form-input{resize:vertical;min-height:80px}
   <div class="form-group"><label class="form-label">앨범명 *</label><input class="form-input" id="wishTitle"></div>
   <div class="form-row">
     <div class="form-group"><label class="form-label">발매연도</label><input class="form-input" id="wishYear" type="number"></div>
-    <div class="form-group"><label class="form-label">장르</label><input class="form-input" id="wishGenre"></div>
+    <div class="form-group"><label class="form-label">예상 가격 (원)</label><input class="form-input" id="wishPrice" type="number" placeholder="0"></div>
   </div>
   <div class="form-group"><label class="form-label">메모</label><textarea class="form-input" id="wishMemo" placeholder="갖고 싶은 이유, 참고 가격 등..."></textarea></div>
+  <input type="hidden" id="wishGenre">
   <input type="hidden" id="wishMbId">
   <div style="height:16px"></div>
   <button class="btn btn-primary" onclick="saveWish()">💾 저장</button>
@@ -444,7 +468,8 @@ function goBack(){navStack.pop();navTo(navStack[navStack.length-1]||'collection'
 function onFab(){const cur=navStack[navStack.length-1];navTo(cur==='wishlist'?'add-wish':'add')}
 
 // ── Collection ────────────────────────────────────
-let allAlbums=[],activeGenre='all';
+let allAlbums=[],activeGenre='all',viewMode='grid';
+function toggleView(){viewMode=viewMode==='grid'?'list':'grid';document.getElementById('viewToggleBtn').textContent=viewMode==='grid'?'⊞':'☰';renderCollection();}
 async function loadCollection(){allAlbums=await DB.albums.getAll();renderGenreChips();renderCollection();}
 function renderGenreChips(){
   const genres=[...new Set(allAlbums.flatMap(a=>(a.genre||'').split(',').map(g=>g.trim())).filter(Boolean))];
@@ -463,7 +488,13 @@ function renderCollection(){
   document.getElementById('albumCount').textContent=list.length+'장';
   const g=document.getElementById('albumGrid');
   if(!list.length){g.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">💿</div><div class="empty-text">LP가 없어요</div><div class="empty-sub">아래 + 버튼으로 추가해보세요</div></div>`;return;}
-  g.innerHTML=list.map(a=>`<div class="album-card" onclick="openDetail(${a.id})"><div class="album-cover">${imgOrPh(a.coverUrl)}</div><div class="album-info"><div class="album-title">${esc(a.title||'제목 없음')}</div><div class="album-artist">${esc(a.artist||'')}</div><div class="album-year">${esc(a.year||'')}</div><div class="album-rating">${a.rating?starsHtml(a.rating):''}</div></div></div>`).join('');
+  if(viewMode==='grid'){
+    g.className='album-grid';
+    g.innerHTML=list.map(a=>`<div class="album-card" onclick="openDetail(${a.id})"><div class="album-cover">${imgOrPh(a.coverUrl)}</div><div class="album-info"><div class="album-title">${esc(a.title||'제목 없음')}</div><div class="album-artist">${esc(a.artist||'')}</div><div class="album-year">${esc(a.year||'')}</div><div class="album-rating">${a.rating?starsHtml(a.rating):''}</div></div></div>`).join('');
+  } else {
+    g.className='album-list';
+    g.innerHTML=list.map(a=>`<div class="album-list-item" onclick="openDetail(${a.id})"><div class="album-list-thumb">${imgOrPh(a.coverUrl)}</div><div class="album-list-body"><div class="album-list-title">${esc(a.title||'제목 없음')}</div><div class="album-list-artist">${esc(a.artist||'')}</div><div class="album-list-meta">${esc(a.year||'')}${a.genre?' · '+esc(a.genre):''} ${a.rating?starsHtml(a.rating):''}</div></div></div>`).join('');
+  }
 }
 function openDetail(id){currentAlbumId=id;navTo('detail',{id});}
 
@@ -481,7 +512,12 @@ async function loadDetail(id){
     <div class="detail-artist">${esc(a.artist||'')}</div>
     <div class="info-card">${irow('발매연도',a.year)}${irow('장르',a.genre)}${irow('레이블',a.label)}${irow('수량',a.quantity?a.quantity+'장':null)}${irow('바코드',a.barcode)}</div>
     ${(a.purchasePrice||a.listPrice||a.purchaseStore||a.purchaseDate)?`<div class="info-card">${irow('구입가',a.purchasePrice?a.purchasePrice.toLocaleString()+'원':null)}${irow('정가',a.listPrice?a.listPrice.toLocaleString()+'원':null)}${irow('구입처',a.purchaseStore)}${irow('구입일',a.purchaseDate)}${gain!==null?`<div class="info-row"><span class="info-key">정가 대비</span><span class="info-val">${gainHtml}</span></div>`:''}</div>`:''}
-    <div style="margin-top:12px;background:var(--s);border-radius:var(--r);padding:14px 16px"><div style="font-size:.78rem;color:var(--ts);margin-bottom:8px">별점</div><div style="font-size:1.6rem">${a.rating?starsHtml(a.rating):'<span style="color:var(--td)">미평가</span>'}</div></div>
+    <div style="margin-top:12px;background:var(--s);border-radius:var(--r);padding:14px 16px">
+      <div style="font-size:.78rem;color:var(--ts);margin-bottom:8px">별점 <span style="color:var(--td);font-size:.7rem">(탭해서 바로 수정)</span></div>
+      <div class="star-rating" id="detailStars">
+        ${[1,2,3,4,5].map(i=>`<span class="star ${i<=(a.rating||0)?'on':'off'}" onclick="updateDetailRating(${a.id},${i.toString()})" style="font-size:2rem">★</span>`).join('')}
+      </div>
+    </div>
     ${a.memo?`<div class="memo-box" style="margin-top:12px"><div class="memo-label">메모</div><div class="memo-text">${esc(a.memo)}</div></div>`:''}
     <div class="action-row" style="margin-top:12px">
       <button class="btn btn-secondary" onclick="moveDetailToWish()">🌙 위시로 이동</button>
@@ -489,7 +525,44 @@ async function loadDetail(id){
     </div><div style="height:8px"></div>`;
 }
 function irow(k,v){if(!v&&v!==0)return'';return`<div class="info-row"><span class="info-key">${k}</span><span class="info-val">${esc(String(v))}</span></div>`}
-async function moveDetailToWish(){const a=currentAlbum;await DB.wishlist.add({artist:a.artist,title:a.title,year:a.year,genre:a.genre,coverUrl:a.coverUrl,mbid:a.mbid,memo:''});await DB.albums.delete(a.id);showToast('위시리스트로 이동했어요');setTimeout(()=>navTo('wishlist'),700);}
+async function moveDetailToWish(){
+  const a=currentAlbum;
+  if((a.quantity||1)<=1){
+    await DB.wishlist.add({artist:a.artist,title:a.title,year:a.year,genre:a.genre,coverUrl:a.coverUrl,mbid:a.mbid,memo:''});
+    await DB.albums.delete(a.id);
+    showToast('위시리스트로 이동했어요');
+    setTimeout(()=>navTo('wishlist'),700);
+  } else {
+    document.getElementById('moveModalDesc').textContent=`현재 ${a.quantity}장 보유 중이에요. 몇 장을 위시리스트로 이동할까요?`;openModal('moveModal');
+  }
+}
+async function confirmMoveToWish(moveAll){
+  const a=currentAlbum;
+  closeModal('moveModal');
+  await DB.wishlist.add({artist:a.artist,title:a.title,year:a.year,genre:a.genre,coverUrl:a.coverUrl,mbid:a.mbid,memo:''});
+  if(moveAll){
+    await DB.albums.delete(a.id);
+  } else {
+    a.quantity=(a.quantity||1)-1;
+    await DB.albums.put(a);
+  }
+  showToast('위시리스트로 이동했어요');
+  setTimeout(()=>navTo('wishlist'),700);
+}
+async function updateDetailRating(id, val){
+  const a=await DB.albums.get(id);
+  if(!a) return;
+  // 같은 별 누르면 취소
+  a.rating = a.rating===val ? 0 : val;
+  await DB.albums.put(a);
+  currentAlbum=a;
+  // 별만 업데이트
+  document.querySelectorAll('#detailStars .star').forEach((s,i)=>{
+    s.classList.toggle('on',i<a.rating);
+    s.classList.toggle('off',i>=a.rating);
+  });
+  showToast(a.rating ? '별점 '+a.rating+'점으로 저장했어요 ✓' : '별점을 취소했어요');
+}
 async function confirmDelete(){await DB.albums.delete(currentAlbum.id);closeModal('delModal');showToast('삭제되었어요');setTimeout(()=>navTo('collection'),600);}
 
 // ── MusicBrainz 검색 공통 ────────────────────────
@@ -635,7 +708,14 @@ async function saveAlbum(){
   };
   const editId=document.getElementById('addEditId').value;
   if(editId){item.id=Number(editId);await DB.albums.put(item);showToast('수정되었어요 ✓');}
-  else{await DB.albums.add(item);showToast('추가되었어요 ✓');}
+  else{
+    const all=await DB.albums.getAll();
+    const dup=all.find(a=>(a.artist||'').trim().toLowerCase()===(artist).toLowerCase()&&(a.title||'').trim().toLowerCase()===(title).toLowerCase());
+    if(dup){
+      if(!confirm(`"${artist} — ${title}" 이(가) 이미 컬렉션에 있어요.\n그래도 추가할까요?`)) return;
+    }
+    await DB.albums.add(item);showToast('추가되었어요 ✓');
+  }
   setTimeout(()=>navTo('collection'),700);
 }
 
@@ -644,13 +724,13 @@ async function loadWishlist(){
   const list=await DB.wishlist.getAll();
   const el=document.getElementById('wishContent');
   if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🌙</div><div class="empty-text">위시리스트가 비어있어요</div><div class="empty-sub">갖고 싶은 LP를 추가해보세요</div></div>`;return;}
-  el.innerHTML=`<div class="wish-list">${list.map(w=>`<div class="wish-item"><div class="wish-thumb">${imgOrPh(w.coverUrl)}</div><div class="wish-body"><div class="wish-title">${esc(w.title||'제목 없음')}</div><div class="wish-artist">${esc(w.artist||'')}</div><div class="wish-meta">${esc(w.year||'')}${w.genre?' · '+esc(w.genre):''}</div>${w.memo?`<div class="wish-meta">${esc(w.memo)}</div>`:''}</div><div class="wish-actions"><button class="wish-btn" title="컬렉션으로" onclick="wishToCollection(${w.id})">💿</button><button class="wish-btn" title="삭제" onclick="deleteWish(${w.id},this)">🗑</button></div></div>`).join('')}</div>`;
+  el.innerHTML=`<div class="wish-list">${list.map(w=>`<div class="wish-item"><div class="wish-thumb">${imgOrPh(w.coverUrl)}</div><div class="wish-body"><div class="wish-title">${esc(w.title||'제목 없음')}</div><div class="wish-artist">${esc(w.artist||'')}</div><div class="wish-meta">${esc(w.year||'')}${w.price?' · 예상 '+Number(w.price).toLocaleString()+'원':''}</div>${w.memo?`<div class="wish-meta">${esc(w.memo)}</div>`:''}</div><div class="wish-actions"><button class="wish-btn" title="컬렉션으로" onclick="wishToCollection(${w.id})">💿</button><button class="wish-btn" title="삭제" onclick="deleteWish(${w.id},this)">🗑</button></div></div>`).join('')}</div>`;
 }
 async function wishToCollection(id){const item=await DB.wishlist.get(id);if(!item)return;await DB.albums.add({artist:item.artist,title:item.title,year:item.year,genre:item.genre,coverUrl:item.coverUrl,mbid:item.mbid,quantity:1,memo:item.memo||''});await DB.wishlist.delete(id);showToast('컬렉션으로 이동했어요 ✓');loadWishlist();}
 async function deleteWish(id,btn){if(!confirm('삭제할까요?'))return;await DB.wishlist.delete(id);btn.closest('.wish-item').remove();showToast('삭제했어요');}
 
 function initWishForm(opts={}){
-  ['wishArtist','wishTitle','wishYear','wishGenre','wishMemo','wishMbId'].forEach(id=>document.getElementById(id).value='');
+  ['wishArtist','wishTitle','wishYear','wishGenre','wishMemo','wishMbId','wishPrice'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('wishCoverUrl').value='';
   document.getElementById('wishSearchResults').innerHTML='';
   resetCover('wishCoverUpload');
@@ -671,27 +751,53 @@ async function saveWish(){
   const artist=document.getElementById('wishArtist').value.trim();
   const title=document.getElementById('wishTitle').value.trim();
   if(!artist||!title){showToast('아티스트와 앨범명을 입력하세요');return;}
-  await DB.wishlist.add({artist,title,year:document.getElementById('wishYear').value,genre:document.getElementById('wishGenre').value.trim(),coverUrl:document.getElementById('wishCoverUrl').value,memo:document.getElementById('wishMemo').value.trim(),mbid:document.getElementById('wishMbId').value});
+  await DB.wishlist.add({artist,title,year:document.getElementById('wishYear').value,genre:'',price:Number(document.getElementById('wishPrice').value)||0,coverUrl:document.getElementById('wishCoverUrl').value,memo:document.getElementById('wishMemo').value.trim(),mbid:document.getElementById('wishMbId').value});
   showToast('위시리스트에 추가했어요 ✓');
   setTimeout(()=>navTo('wishlist'),700);
 }
 
 // ── Dashboard ─────────────────────────────────────
-let gChart=null,yChart=null;
+let gChart=null,yChart=null,mChart=null;
 async function loadDashboard(){
   Chart.defaults.color='#999';Chart.defaults.borderColor='#2a2a2a';
   const albums=await DB.albums.getAll(),wish=await DB.wishlist.getAll();
   const totalQty=albums.reduce((s,a)=>s+(a.quantity||1),0);
-  const totalVal=albums.reduce((s,a)=>s+(a.purchasePrice||0),0);
-  const gSet={},ySet={},aSet={};
-  albums.forEach(a=>{(a.genre||'기타').split(',').forEach(g=>{g=g.trim()||'기타';gSet[g]=(gSet[g]||0)+1;});if(a.year)ySet[a.year]=(ySet[a.year]||0)+1;if(a.artist)aSet[a.artist]=(aSet[a.artist]||0)+1;});
-  document.getElementById('statsGrid').innerHTML=`<div class="stat-card"><div class="stat-val">${totalQty}</div><div class="stat-label">총 LP 수</div></div><div class="stat-card"><div class="stat-val">${Object.keys(gSet).length}</div><div class="stat-label">장르 수</div></div><div class="stat-card"><div class="stat-val">${totalVal.toLocaleString()}</div><div class="stat-label">총 구매액(원)</div></div><div class="stat-card"><div class="stat-val">${wish.length}</div><div class="stat-label">위시리스트</div></div>`;
-  if(gChart){gChart.destroy();gChart=null;}if(yChart){yChart.destroy();yChart=null;}
+  const bought=albums.filter(a=>a.purchasePrice>0);
+  const totalVal=bought.reduce((s,a)=>s+(a.purchasePrice||0),0);
+  const avgVal=bought.length?Math.round(totalVal/bought.length):0;
+  const gSet={},ySet={},aSet={},mSet={};
+  albums.forEach(a=>{
+    (a.genre||'기타').split(',').forEach(g=>{g=g.trim()||'기타';gSet[g]=(gSet[g]||0)+1;});
+    if(a.year)ySet[a.year]=(ySet[a.year]||0)+1;
+    if(a.artist)aSet[a.artist]=(aSet[a.artist]||0)+1;
+    if(a.purchaseDate){const m=a.purchaseDate.slice(0,7);mSet[m]=(mSet[m]||0)+1;}
+  });
+  document.getElementById('statsGrid').innerHTML=`
+    <div class="stat-card"><div class="stat-val">${totalQty}</div><div class="stat-label">총 LP 수</div></div>
+    <div class="stat-card"><div class="stat-val">${Object.keys(gSet).length}</div><div class="stat-label">장르 수</div></div>
+    <div class="stat-card"><div class="stat-val">${totalVal>0?totalVal.toLocaleString():'-'}</div><div class="stat-label">총 구매액(원)</div></div>
+    <div class="stat-card"><div class="stat-val">${avgVal>0?avgVal.toLocaleString():'-'}</div><div class="stat-label">평균 구입가(원)</div></div>
+    <div class="stat-card"><div class="stat-val">${wish.length}</div><div class="stat-label">위시리스트</div></div>
+    <div class="stat-card"><div class="stat-val">${bought.length}</div><div class="stat-label">가격 기록 LP</div></div>`;
+  [gChart,yChart,mChart].forEach(c=>{if(c)c.destroy();});gChart=yChart=mChart=null;
+  // 장르 도넛
   const gLabels=Object.keys(gSet).sort((a,b)=>gSet[b]-gSet[a]).slice(0,8);
   const colors=['#D4A017','#E86A4C','#4C9EE8','#4CE87A','#E84C9E','#9E4CE8','#4CE8D4','#E8D44C'];
   gChart=new Chart(document.getElementById('genreChart'),{type:'doughnut',data:{labels:gLabels,datasets:[{data:gLabels.map(k=>gSet[k]),backgroundColor:colors,borderWidth:2,borderColor:'#1e1e1e'}]},options:{plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}},cutout:'60%'}});
+  // 연도 바
   const years=Object.keys(ySet).sort();
   yChart=new Chart(document.getElementById('yearChart'),{type:'bar',data:{labels:years,datasets:[{data:years.map(y=>ySet[y]),backgroundColor:'#D4A017',borderRadius:4,borderSkipped:false}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}},x:{ticks:{maxRotation:45}}}}});
+  // 월별 구매 추이
+  const months=Object.keys(mSet).sort().slice(-12);
+  if(months.length){
+    mChart=new Chart(document.getElementById('monthChart'),{type:'line',data:{labels:months,datasets:[{data:months.map(m=>mSet[m]),borderColor:'#D4A017',backgroundColor:'rgba(212,160,23,.15)',tension:.3,fill:true,pointBackgroundColor:'#D4A017',pointRadius:4}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}},x:{ticks:{maxRotation:45}}}}});
+  } else {
+    document.getElementById('monthChart').parentElement.innerHTML+='<p style="color:var(--td);font-size:.85rem;margin-top:-8px">구입일을 기록하면 추이가 보여요</p>';
+  }
+  // 가장 비싼 LP TOP5
+  const top5=albums.filter(a=>a.purchasePrice>0).sort((a,b)=>b.purchasePrice-a.purchasePrice).slice(0,5);
+  document.getElementById('topPrice').innerHTML=top5.length?top5.map((a,i)=>`<div class="top-item"><span class="top-rank">${i+1}</span><span class="top-name">${esc(a.artist)} — ${esc(a.title)}</span><span class="top-count">${a.purchasePrice.toLocaleString()}원</span></div>`).join(''):'<p style="color:var(--td);font-size:.85rem;padding:10px 0">구입가를 기록하면 보여요</p>';
+  // 아티스트 TOP10
   const sorted=Object.entries(aSet).sort((a,b)=>b[1]-a[1]).slice(0,10);
   document.getElementById('topArtists').innerHTML=sorted.length?sorted.map(([name,cnt],i)=>`<div class="top-item"><span class="top-rank">${i+1}</span><span class="top-name">${esc(name)}</span><span class="top-count">${cnt}장</span></div>`).join(''):'<p style="color:var(--td);font-size:.85rem;padding:10px 0">데이터 없음</p>';
 }
