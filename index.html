@@ -2,474 +2,569 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>내 LP 컬렉션</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="LP">
+<title>LP Collection</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { background: #f5f5f7; color: #1d1d1f; font-family: -apple-system, 'Segoe UI', sans-serif; }
-header { background: #fff; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; position: sticky; top: 0; z-index: 50; }
-header h1 { font-size: 1.3rem; font-weight: 700; }
-header h1 span { color: #ff3b5c; }
-.hstat { display: flex; gap: 8px; }
-.pill { background: #f5f5f7; border: 1px solid #e5e5ea; border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: #6e6e73; }
-.pill b { color: #1d1d1f; }
-nav { display: flex; background: #fff; border-bottom: 1px solid #e5e5ea; }
-nav button { flex: 1; padding: 13px; background: none; border: none; border-bottom: 2px solid transparent; color: #6e6e73; cursor: pointer; font-size: 0.88rem; font-weight: 500; }
-nav button.active { color: #ff3b5c; border-bottom-color: #ff3b5c; }
-.tab { display: none; }
-.tab.active { display: block; }
-.wrap { max-width: 1060px; margin: 0 auto; padding: 24px 16px; }
-.toolbar { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
-.toolbar input, .toolbar select { flex: 1; min-width: 140px; padding: 10px 13px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 0.88rem; background: #fff; color: #1d1d1f; }
-.btn { padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
-.btn-red { background: #ff3b5c; color: #fff; }
-.btn-gray { background: #fff; color: #1d1d1f; border: 1px solid #e5e5ea; }
-.btn-del { background: #fff0f0; color: #c0392b; border: 1px solid #ffc5c5; padding: 8px 14px; font-size: 0.82rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
-.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
-.card { background: #fff; border-radius: 14px; border: 1px solid #e5e5ea; overflow: hidden; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s; }
-.card:hover { transform: translateY(-4px); }
-.card.wish { border-color: #ffd0d8; }
-.cimg { width: 100%; aspect-ratio: 1; background: #f5f5f7; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; overflow: hidden; }
-.cimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.cinfo { padding: 11px 12px 13px; }
-.cart { font-size: 0.68rem; color: #ff3b5c; font-weight: 700; text-transform: uppercase; }
-.calb { font-size: 0.87rem; font-weight: 700; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cmeta { font-size: 0.74rem; color: #6e6e73; }
-.wbadge { display: inline-block; background: #fff0f3; color: #ff3b5c; border: 1px solid #ffd0d8; font-size: 0.65rem; padding: 2px 7px; border-radius: 6px; font-weight: 700; margin-top: 5px; }
-.empty { grid-column: 1/-1; text-align: center; padding: 70px 20px; color: #6e6e73; }
-.empty .ico { font-size: 3.5rem; margin-bottom: 10px; }
-.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 200; justify-content: center; align-items: center; }
-.overlay.active { display: flex; }
-.modal { background: #fff; border-radius: 18px; padding: 28px; width: 92%; max-width: 490px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-.modal h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
-.fg { margin-bottom: 12px; }
-.fg label { display: block; font-size: 0.76rem; color: #6e6e73; font-weight: 500; margin-bottom: 4px; }
-.fg input, .fg textarea { width: 100%; background: #f5f5f7; border: 1px solid #e5e5ea; color: #1d1d1f; padding: 10px 12px; border-radius: 10px; font-size: 0.88rem; font-family: inherit; }
-.fg input:focus, .fg textarea:focus { outline: none; border-color: #ff3b5c; background: #fff; }
-.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.mact { display: flex; gap: 8px; margin-top: 20px; align-items: center; }
-.dcov { width: 100%; height: 220px; background: #f5f5f7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; overflow: hidden; margin-bottom: 16px; }
-.dcov img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
-.dflds { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
-.df .dl { font-size: 0.72rem; color: #6e6e73; font-weight: 500; }
-.df .dv { font-size: 0.93rem; font-weight: 600; }
-.sgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
-.scard { background: #fff; border-radius: 14px; padding: 18px; border: 1px solid #e5e5ea; }
-.snum { font-size: 2rem; font-weight: 800; color: #ff3b5c; }
-.slbl { font-size: 0.8rem; color: #6e6e73; margin-top: 3px; }
-.cwrap { background: #fff; border-radius: 14px; padding: 20px; border: 1px solid #e5e5ea; margin-bottom: 14px; }
-.cwrap h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 14px; }
-.brow { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-.blbl { width: 85px; font-size: 0.76rem; color: #6e6e73; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.btrk { flex: 1; background: #f5f5f7; border-radius: 5px; height: 16px; overflow: hidden; }
-.bfil { height: 100%; background: linear-gradient(90deg, #ff3b5c, #ff9500); border-radius: 5px; }
-.bcnt { font-size: 0.76rem; color: #6e6e73; width: 22px; text-align: right; }
-@media (max-width: 580px) { header { flex-direction: column; gap: 8px; padding: 12px 16px; } .frow { grid-template-columns: 1fr; } }
+:root{--bg:#111;--s:#1E1E1E;--s2:#2A2A2A;--ac:#D4A017;--acd:rgba(212,160,23,.15);--t:#fff;--ts:#999;--td:#555;--err:#FF5252;--ok:#4CAF50;--nav:60px;--r:12px;--rs:8px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--t);font-family:-apple-system,BlinkMacSystemFont,'Helvetica Neue',sans-serif;-webkit-font-smoothing:antialiased;padding-bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 8px);min-height:100vh}
+a{text-decoration:none;color:inherit}
+.page{display:none;padding:16px;animation:fadeIn .18s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.header{position:sticky;top:0;z-index:100;background:rgba(17,17,17,.96);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid #222;padding:calc(env(safe-area-inset-top) + 14px) 16px 14px;display:flex;align-items:center;gap:12px;min-height:56px}
+.header h1{font-size:1.15rem;font-weight:700;flex:1}
+.hbtn{width:36px;height:36px;border-radius:50%;background:var(--s);border:none;color:var(--t);font-size:1.1rem;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;z-index:200;background:rgba(17,17,17,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;height:calc(var(--nav) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);border-top:1px solid #222}
+.ni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--td);font-size:.62rem;gap:3px;padding:6px 0;cursor:pointer;transition:color .2s;border:none;background:none}
+.ni.active{color:var(--ac)}
+.ni-icon{font-size:1.3rem;line-height:1}
+.album-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.album-card{background:var(--s);border-radius:var(--r);overflow:hidden;cursor:pointer;transition:transform .15s}
+.album-card:active{transform:scale(.97)}
+.album-cover{width:100%;aspect-ratio:1;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:2.5rem;position:relative;overflow:hidden}
+.album-cover img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.album-info{padding:10px}
+.album-title{font-size:.82rem;font-weight:600;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.album-artist{font-size:.72rem;color:var(--ts);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.album-year{font-size:.68rem;color:var(--td);margin-top:2px}
+.album-rating{font-size:.7rem;margin-top:3px}
+.search-bar{display:flex;align-items:center;background:var(--s);border-radius:var(--r);padding:10px 14px;gap:10px;margin-bottom:10px}
+.search-bar input{flex:1;background:none;border:none;color:var(--t);font-size:.95rem;outline:none}
+.search-bar input::placeholder{color:var(--td)}
+.filter-bar{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}
+.filter-bar::-webkit-scrollbar{display:none}
+.chip{white-space:nowrap;padding:6px 14px;border-radius:20px;font-size:.78rem;background:var(--s);color:var(--ts);border:1px solid #333;cursor:pointer;transition:all .2s;user-select:none}
+.chip.active{background:var(--acd);color:var(--ac);border-color:var(--ac)}
+.sort-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.album-count{font-size:.78rem;color:var(--ts)}
+.sort-select{background:var(--s);border:1px solid #333;border-radius:var(--rs);color:var(--t);font-size:.78rem;padding:6px 10px;outline:none;-webkit-appearance:none}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:13px 20px;border-radius:var(--rs);font-size:.9rem;font-weight:600;border:none;cursor:pointer;transition:opacity .2s;width:100%}
+.btn:active{opacity:.75}
+.btn-primary{background:var(--ac);color:#111}
+.btn-secondary{background:var(--s2);color:var(--t)}
+.btn-danger{background:rgba(255,82,82,.12);color:var(--err)}
+.btn-outline{background:transparent;border:1.5px solid var(--ac);color:var(--ac)}
+.btn-sm{padding:9px 16px;font-size:.82rem;width:auto}
+.fab{position:fixed;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 16px);right:20px;width:52px;height:52px;border-radius:50%;background:var(--ac);color:#111;font-size:1.6rem;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(212,160,23,.5);cursor:pointer;border:none;z-index:100}
+.fab:active{transform:scale(.9)}
+.form-group{margin-bottom:15px}
+.form-label{display:block;font-size:.78rem;color:var(--ts);margin-bottom:6px;font-weight:500}
+.form-input{width:100%;padding:12px 14px;background:var(--s);border:1.5px solid #2e2e2e;border-radius:var(--rs);color:var(--t);font-size:.95rem;outline:none;transition:border-color .2s;-webkit-appearance:none}
+.form-input:focus{border-color:var(--ac)}
+.form-input::placeholder{color:var(--td)}
+textarea.form-input{resize:vertical;min-height:80px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-section{margin:20px 0 14px;font-size:.72rem;font-weight:700;color:var(--td);text-transform:uppercase;letter-spacing:.05em}
+.star-rating{display:flex;gap:4px}
+.star{font-size:1.9rem;cursor:pointer;transition:transform .1s;line-height:1}
+.star:active{transform:scale(1.2)}
+.star.on{color:var(--ac)}
+.star.off{color:#333}
+.cover-upload{width:160px;height:160px;background:var(--s2);border-radius:var(--r);border:2px dashed #3a3a3a;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;margin:0 auto 16px;position:relative;overflow:hidden}
+.cover-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cu-icon{font-size:2.2rem;color:var(--td)}
+.cu-hint{font-size:.7rem;color:var(--td);margin-top:5px}
+.discogs-box{background:var(--s2);border-radius:var(--r);padding:14px;margin-bottom:20px}
+.discogs-label{font-size:.75rem;font-weight:700;color:var(--ac);margin-bottom:10px}
+.discogs-row{display:flex;gap:8px}
+.discogs-row input{flex:1}
+.result-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:280px;overflow-y:auto}
+.result-item{display:flex;gap:12px;align-items:center;padding:10px;background:var(--s);border-radius:var(--rs);cursor:pointer}
+.result-item:active{opacity:.7}
+.result-thumb{width:48px;height:48px;border-radius:6px;object-fit:cover;background:#333;flex-shrink:0}
+.result-info{flex:1;min-width:0}
+.result-title{font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.result-sub{font-size:.72rem;color:var(--ts);margin-top:2px}
+.detail-cover-wrap{text-align:center;margin-bottom:20px}
+.detail-cover{width:220px;height:220px;border-radius:var(--r);object-fit:cover;display:inline-block}
+.detail-cover-placeholder{width:220px;height:220px;border-radius:var(--r);background:var(--s);display:inline-flex;align-items:center;justify-content:center;font-size:5rem}
+.detail-title{font-size:1.3rem;font-weight:700;text-align:center;margin-bottom:4px}
+.detail-artist{font-size:.95rem;color:var(--ts);text-align:center;margin-bottom:20px}
+.info-card{background:var(--s);border-radius:var(--r);overflow:hidden;margin-bottom:12px}
+.info-row{display:flex;justify-content:space-between;align-items:flex-start;padding:12px 16px;border-bottom:1px solid #242424;gap:12px}
+.info-row:last-child{border-bottom:none}
+.info-key{font-size:.78rem;color:var(--ts);min-width:72px;flex-shrink:0}
+.info-val{font-size:.88rem;text-align:right;word-break:break-all}
+.green{color:var(--ok);font-weight:600}
+.red{color:var(--err);font-weight:600}
+.gold{color:var(--ac);font-weight:600}
+.memo-box{background:var(--s);border-radius:var(--r);padding:14px;margin-bottom:12px}
+.memo-label{font-size:.72rem;color:var(--ts);margin-bottom:6px}
+.memo-text{font-size:.88rem;line-height:1.6;white-space:pre-wrap}
+.action-row{display:flex;gap:10px}
+.action-row .btn{flex:1}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}
+.stat-card{background:var(--s);border-radius:var(--r);padding:16px;text-align:center}
+.stat-val{font-size:1.8rem;font-weight:800;color:var(--ac)}
+.stat-label{font-size:.72rem;color:var(--ts);margin-top:4px}
+.chart-wrap{background:var(--s);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.chart-title{font-size:.85rem;font-weight:600;color:var(--ts);margin-bottom:14px}
+.wish-list{display:flex;flex-direction:column;gap:10px}
+.wish-item{display:flex;gap:12px;background:var(--s);border-radius:var(--r);overflow:hidden}
+.wish-thumb{width:72px;height:72px;flex-shrink:0;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1.8rem;position:relative;overflow:hidden}
+.wish-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.wish-body{flex:1;padding:12px 0;min-width:0}
+.wish-title{font-size:.88rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wish-artist{font-size:.78rem;color:var(--ts)}
+.wish-meta{font-size:.72rem;color:var(--td);margin-top:3px}
+.wish-actions{display:flex;flex-direction:column;justify-content:center;gap:6px;padding:10px}
+.wish-btn{font-size:1.1rem;background:none;border:none;cursor:pointer;padding:4px}
+.toast{position:fixed;bottom:calc(var(--nav) + env(safe-area-inset-bottom) + 16px);left:50%;transform:translateX(-50%) translateY(10px);background:#333;color:#fff;padding:10px 22px;border-radius:20px;font-size:.85rem;opacity:0;transition:all .28s;z-index:500;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:400;display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .25s}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal{background:var(--s);border-radius:20px 20px 0 0;padding:12px 20px calc(20px + env(safe-area-inset-bottom));width:100%;max-height:75vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+.modal-bg.open .modal{transform:translateY(0)}
+.modal-handle{width:36px;height:4px;background:#3a3a3a;border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:.95rem;font-weight:700;margin-bottom:14px}
+.scan-wrap{max-width:420px;margin:0 auto}
+#reader{border-radius:var(--r);overflow:hidden;background:#000}
+.scan-result{background:var(--s);border-radius:var(--r);padding:16px;margin-top:16px}
+.scan-result-title{font-size:.85rem;font-weight:700;margin-bottom:8px;color:var(--ac)}
+.settings-block{background:var(--s);border-radius:var(--r);padding:16px;margin-bottom:14px}
+.settings-block-title{font-size:.82rem;font-weight:700;color:var(--ac);margin-bottom:10px}
+.settings-desc{font-size:.78rem;color:var(--ts);line-height:1.6;margin-bottom:12px}
+.settings-link{color:var(--ac);text-decoration:underline}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid #444;border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty{text-align:center;padding:60px 20px}
+.empty-icon{font-size:4rem;margin-bottom:14px}
+.empty-text{font-size:.95rem;color:var(--ts);margin-bottom:6px}
+.empty-sub{font-size:.82rem;color:var(--td)}
+.price-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.price-box{background:var(--s2);border-radius:var(--rs);padding:10px 8px;text-align:center}
+.price-box-label{font-size:.65rem;color:var(--td);margin-bottom:4px}
+.price-box-val{font-size:.88rem;font-weight:600}
+.top-list{display:flex;flex-direction:column}
+.top-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222}
+.top-item:last-child{border-bottom:none}
+.top-rank{font-size:.85rem;color:var(--td);width:24px}
+.top-name{flex:1;font-size:.88rem;padding:0 10px}
+.top-count{font-size:.82rem;color:var(--ac);font-weight:600}
 </style>
 </head>
 <body>
 
-<header>
-  <h1>🎵 내 <span>LP</span> 컬렉션</h1>
-  <div class="hstat">
-    <div class="pill">총 <b id="tcnt">0</b>장</div>
-    <div class="pill">위시 <b id="wcnt">0</b>장</div>
-  </div>
+<header class="header" id="mainHeader">
+  <button class="hbtn" id="headerBack" onclick="goBack()" style="display:none">←</button>
+  <h1 id="headerTitle">💿 LP Collection</h1>
+  <button class="hbtn" id="headerRight" style="display:none"></button>
 </header>
 
-<nav>
-  <button id="nb-col" class="active" onclick="goTab('col')">📀 컬렉션</button>
-  <button id="nb-wish" onclick="goTab('wish')">💛 위시리스트</button>
-  <button id="nb-stat" onclick="goTab('stat')">📊 통계</button>
+<!-- 컬렉션 -->
+<div class="page active" id="page-collection">
+  <div class="search-bar"><span>🔍</span><input type="search" id="searchInput" placeholder="아티스트, 앨범명 검색..." autocomplete="off" oninput="renderCollection()"></div>
+  <div class="filter-bar" id="filterBar"></div>
+  <div class="sort-bar">
+    <span class="album-count" id="albumCount"></span>
+    <select class="sort-select" id="sortSelect" onchange="renderCollection()">
+      <option value="createdAt">최근 추가순</option>
+      <option value="artist">아티스트순</option>
+      <option value="title">앨범명순</option>
+      <option value="year">발매연도순</option>
+      <option value="rating">별점순</option>
+    </select>
+  </div>
+  <div class="album-grid" id="albumGrid"></div>
+</div>
+
+<!-- 위시리스트 -->
+<div class="page" id="page-wishlist">
+  <div id="wishContent"></div>
+</div>
+
+<!-- 스캔 -->
+<div class="page" id="page-scan">
+  <p style="font-size:.85rem;color:var(--ts);margin-bottom:16px;text-align:center">LP 바코드를 카메라로 스캔하세요</p>
+  <div class="scan-wrap">
+    <div id="reader"></div>
+    <div id="scanStatus" style="text-align:center;margin-top:12px;font-size:.85rem;color:var(--ts)">스캔 대기 중...</div>
+  </div>
+  <div id="scanResult" style="display:none;margin-top:16px">
+    <div class="scan-result">
+      <div class="scan-result-title">✅ 바코드 인식됨</div>
+      <p id="barcodeVal" style="font-size:.9rem;margin-bottom:12px;font-family:monospace"></p>
+      <div id="discogsPreview" style="margin-bottom:12px"></div>
+      <button class="btn btn-primary" onclick="scanGoAdd()" style="margin-bottom:8px">💿 컬렉션에 추가</button>
+      <button class="btn btn-secondary" onclick="scanGoWish()">🎯 위시리스트에 추가</button>
+      <button class="btn btn-outline" style="margin-top:8px" onclick="restartScan()">🔄 다시 스캔</button>
+    </div>
+  </div>
+</div>
+
+<!-- 통계 -->
+<div class="page" id="page-dashboard">
+  <div class="stats-grid" id="statsGrid"></div>
+  <div class="chart-wrap"><div class="chart-title">🎵 장르 분포</div><canvas id="genreChart" style="max-height:220px"></canvas></div>
+  <div class="chart-wrap"><div class="chart-title">📅 연도별 LP 수</div><canvas id="yearChart" style="max-height:200px"></canvas></div>
+  <div class="chart-wrap"><div class="chart-title">🏆 아티스트 TOP 10</div><div class="top-list" id="topArtists"></div></div>
+</div>
+
+<!-- 설정 -->
+<div class="page" id="page-settings">
+  <div class="settings-block">
+    <div class="settings-block-title">🔑 Discogs API 설정</div>
+    <div class="settings-desc">앨범 자동 검색·커버 이미지를 불러오려면 API 키가 필요합니다.<br><br>
+      1. <a class="settings-link" href="https://www.discogs.com/settings/developers" target="_blank">discogs.com/settings/developers</a> 접속<br>
+      2. "Generate new token" 클릭<br>3. Consumer Key / Secret 복사 후 입력</div>
+    <div class="form-group"><label class="form-label">Consumer Key</label><input class="form-input" id="discogsKey" placeholder="Consumer Key" autocomplete="off"></div>
+    <div class="form-group"><label class="form-label">Consumer Secret</label><input class="form-input" id="discogsSecret" placeholder="Consumer Secret" type="password"></div>
+    <button class="btn btn-primary" onclick="saveDiscogsKey()">저장</button>
+  </div>
+  <div class="settings-block">
+    <div class="settings-block-title">📦 데이터 관리</div>
+    <button class="btn btn-secondary" style="margin-bottom:8px" onclick="exportData()">📤 데이터 내보내기 (JSON)</button>
+    <label class="btn btn-secondary" style="margin-bottom:8px;cursor:pointer">📥 데이터 가져오기 (JSON)<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
+    <button class="btn btn-danger" onclick="clearData()">🗑 모든 데이터 삭제</button>
+  </div>
+  <div class="settings-block">
+    <div class="settings-block-title">📱 홈 화면 설치 (PWA)</div>
+    <div class="settings-desc">Safari → 하단 공유(□↑) → "홈 화면에 추가" → 앱처럼 실행!</div>
+  </div>
+  <div style="text-align:center;margin-top:20px;font-size:.75rem;color:var(--td)">LP Collection v1.0 · Made with ❤️</div>
+</div>
+
+<!-- 앨범 추가/수정 -->
+<div class="page" id="page-add">
+  <div class="discogs-box">
+    <div class="discogs-label">🔍 Discogs 자동 검색</div>
+    <div class="discogs-row">
+      <input class="form-input" id="addDiscogsQuery" placeholder="아티스트 또는 앨범명..." type="search">
+      <button class="btn btn-primary btn-sm" onclick="doDiscogsSearch()">검색</button>
+    </div>
+    <div id="addDiscogsResults"></div>
+  </div>
+  <div class="cover-upload" id="addCoverUpload" onclick="document.getElementById('addCoverFile').click()">
+    <span class="cu-icon">🖼️</span><span class="cu-hint">커버 사진 추가</span>
+  </div>
+  <input type="file" id="addCoverFile" accept="image/*" style="display:none" onchange="handleAddCover(this)">
+  <input type="hidden" id="addCoverUrl">
+  <div class="form-section">기본 정보</div>
+  <div class="form-group"><label class="form-label">아티스트 *</label><input class="form-input" id="addArtist" placeholder="예) The Beatles"></div>
+  <div class="form-group"><label class="form-label">앨범명 *</label><input class="form-input" id="addTitle" placeholder="예) Abbey Road"></div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">발매연도</label><input class="form-input" id="addYear" type="number" placeholder="1969"></div>
+    <div class="form-group"><label class="form-label">보유 수량</label><input class="form-input" id="addQty" type="number" value="1" min="1"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">장르</label><input class="form-input" id="addGenre" placeholder="예) Rock"></div>
+    <div class="form-group"><label class="form-label">레이블</label><input class="form-input" id="addLabel" placeholder="예) Apple Records"></div>
+  </div>
+  <div class="form-group"><label class="form-label">바코드</label><input class="form-input" id="addBarcode" placeholder="바코드 번호"></div>
+  <div class="form-section">구매 정보</div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">구입가 (원)</label><input class="form-input" id="addBuyPrice" type="number" placeholder="0"></div>
+    <div class="form-group"><label class="form-label">정가 (원)</label><input class="form-input" id="addListPrice" type="number" placeholder="0"></div>
+  </div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">구입처</label><input class="form-input" id="addStore" placeholder="예) 레코드샵 OO"></div>
+    <div class="form-group"><label class="form-label">구입일</label><input class="form-input" id="addDate" type="date"></div>
+  </div>
+  <div class="form-section">평가</div>
+  <div class="form-group">
+    <label class="form-label">별점</label>
+    <div class="star-rating" id="addStarRating">
+      <span class="star off" onclick="setAddStar(1)">★</span>
+      <span class="star off" onclick="setAddStar(2)">★</span>
+      <span class="star off" onclick="setAddStar(3)">★</span>
+      <span class="star off" onclick="setAddStar(4)">★</span>
+      <span class="star off" onclick="setAddStar(5)">★</span>
+    </div>
+  </div>
+  <div class="form-group"><label class="form-label">메모 / 감상</label><textarea class="form-input" id="addMemo" placeholder="개인 감상이나 메모를 남겨보세요..."></textarea></div>
+  <input type="hidden" id="addDiscogsId">
+  <input type="hidden" id="addEditId">
+  <div style="height:16px"></div>
+  <button class="btn btn-primary" onclick="saveAlbum()">💾 저장</button>
+  <div style="height:8px"></div>
+</div>
+
+<!-- 앨범 상세 -->
+<div class="page" id="page-detail">
+  <div id="detailContent"></div>
+  <div class="modal-bg" id="delModal" onclick="if(event.target===this)closeModal('delModal')">
+    <div class="modal">
+      <div class="modal-handle"></div>
+      <div class="modal-title">정말 삭제할까요?</div>
+      <p style="font-size:.85rem;color:var(--ts);margin-bottom:16px">이 LP를 컬렉션에서 삭제합니다.</p>
+      <button class="btn btn-danger" onclick="confirmDelete()" style="margin-bottom:8px">삭제</button>
+      <button class="btn btn-secondary" onclick="closeModal('delModal')">취소</button>
+    </div>
+  </div>
+</div>
+
+<!-- 위시 추가 -->
+<div class="page" id="page-add-wish">
+  <div class="discogs-box">
+    <div class="discogs-label">🔍 Discogs 검색</div>
+    <div class="discogs-row">
+      <input class="form-input" id="wishQuery" placeholder="아티스트 또는 앨범명..." type="search">
+      <button class="btn btn-primary btn-sm" onclick="doWishSearch()">검색</button>
+    </div>
+    <div id="wishSearchResults"></div>
+  </div>
+  <div class="cover-upload" id="wishCoverUpload" onclick="document.getElementById('wishCoverFile').click()">
+    <span class="cu-icon">🖼️</span><span class="cu-hint">커버 추가</span>
+  </div>
+  <input type="file" id="wishCoverFile" accept="image/*" style="display:none" onchange="handleWishCover(this)">
+  <input type="hidden" id="wishCoverUrl">
+  <div class="form-group"><label class="form-label">아티스트 *</label><input class="form-input" id="wishArtist"></div>
+  <div class="form-group"><label class="form-label">앨범명 *</label><input class="form-input" id="wishTitle"></div>
+  <div class="form-row">
+    <div class="form-group"><label class="form-label">발매연도</label><input class="form-input" id="wishYear" type="number"></div>
+    <div class="form-group"><label class="form-label">장르</label><input class="form-input" id="wishGenre"></div>
+  </div>
+  <div class="form-group"><label class="form-label">메모</label><textarea class="form-input" id="wishMemo" placeholder="갖고 싶은 이유, 참고 가격 등..."></textarea></div>
+  <input type="hidden" id="wishDiscogsId">
+  <div style="height:16px"></div>
+  <button class="btn btn-primary" onclick="saveWish()">💾 저장</button>
+</div>
+
+<!-- Bottom Nav -->
+<nav class="bottom-nav" id="bottomNav">
+  <button class="ni active" id="nav-collection" onclick="navTo('collection')"><span class="ni-icon">💿</span><span>컬렉션</span></button>
+  <button class="ni" id="nav-wishlist" onclick="navTo('wishlist')"><span class="ni-icon">🎯</span><span>위시</span></button>
+  <button class="ni" id="nav-scan" onclick="navTo('scan')"><span class="ni-icon">📷</span><span>스캔</span></button>
+  <button class="ni" id="nav-dashboard" onclick="navTo('dashboard')"><span class="ni-icon">📊</span><span>통계</span></button>
+  <button class="ni" id="nav-settings" onclick="navTo('settings')"><span class="ni-icon">⚙️</span><span>설정</span></button>
 </nav>
-
-<div id="tab-col" class="tab active">
-  <div class="wrap">
-    <div class="toolbar">
-      <input type="text" id="sq" placeholder="아티스트, 앨범 검색..." oninput="render()">
-      <select id="sg" onchange="render()"><option value="">전체 장르</option></select>
-      <button class="btn btn-red" onclick="openAdd(false)">+ LP 추가</button>
-    </div>
-    <div class="grid" id="cgrid"></div>
-  </div>
-</div>
-
-<div id="tab-wish" class="tab">
-  <div class="wrap">
-    <div class="toolbar">
-      <input type="text" id="wq" placeholder="검색..." oninput="renderWish()">
-      <button class="btn btn-red" onclick="openAdd(true)">+ 위시리스트 추가</button>
-    </div>
-    <div class="grid" id="wgrid"></div>
-  </div>
-</div>
-
-<div id="tab-stat" class="tab">
-  <div class="wrap">
-    <div class="sgrid">
-      <div class="scard"><div class="snum" id="st">0</div><div class="slbl">총 LP</div></div>
-      <div class="scard"><div class="snum" id="sg2">0</div><div class="slbl">장르 수</div></div>
-      <div class="scard"><div class="snum" id="sa">0</div><div class="slbl">아티스트 수</div></div>
-      <div class="scard"><div class="snum" id="sp">₩0</div><div class="slbl">총 구매금액</div></div>
-    </div>
-    <div class="cwrap"><h3>🎸 장르별 분포</h3><div id="cg"></div></div>
-    <div class="cwrap"><h3>📅 연도별 분포</h3><div id="cy"></div></div>
-    <div style="text-align:right;margin-top:14px;">
-      <button class="btn btn-gray" onclick="doCSV()">📥 CSV 내보내기</button>
-    </div>
-  </div>
-</div>
-
-<!-- 추가/수정 모달 -->
-<div class="overlay" id="ov-add" onclick="ovClose(event,'ov-add')">
-  <div class="modal">
-    <h2 id="mtitle">LP 추가</h2>
-    <div class="fg"><label>앨범 커버 이미지 URL (선택)</label><input type="text" id="f-cover" placeholder="https://..."></div>
-    <div class="frow">
-      <div class="fg"><label>아티스트 *</label><input type="text" id="f-artist" placeholder="ex. The Beatles"></div>
-      <div class="fg"><label>앨범명 *</label><input type="text" id="f-album" placeholder="ex. Abbey Road"></div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>발매년도</label><input type="number" id="f-year" placeholder="1969"></div>
-      <div class="fg"><label>장르</label><input type="text" id="f-genre" placeholder="ex. Rock, Jazz"></div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>레이블</label><input type="text" id="f-label" placeholder="ex. Apple Records"></div>
-      <div class="fg"><label>구입가 (₩)</label><input type="number" id="f-price" placeholder="30000"></div>
-    </div>
-    <div class="frow">
-      <div class="fg"><label>구입일</label><input type="date" id="f-date"></div>
-      <div class="fg"><label>구입처</label><input type="text" id="f-store" placeholder="ex. 레코드샵"></div>
-    </div>
-    <div class="fg"><label>메모</label><textarea id="f-memo" rows="3" placeholder="개인 메모..."></textarea></div>
-    <div class="mact">
-      <button class="btn-del" id="btn-del" style="display:none" onclick="doDelete()">삭제</button>
-      <div style="margin-left:auto;display:flex;gap:8px;">
-        <button class="btn btn-gray" onclick="closeOv('ov-add')">취소</button>
-        <button class="btn btn-red" onclick="doSave()">저장</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- 상세 모달 -->
-<div class="overlay" id="ov-det" onclick="ovClose(event,'ov-det')">
-  <div class="modal">
-    <div class="dcov" id="dcov"></div>
-    <div style="margin-bottom:16px;">
-      <div style="font-size:0.74rem;color:#ff3b5c;font-weight:700;" id="dart"></div>
-      <div style="font-size:1.3rem;font-weight:800;margin-top:3px;" id="dalb"></div>
-    </div>
-    <div class="dflds" id="dflds"></div>
-    <div id="dmwrap" style="display:none;margin-top:14px;">
-      <div style="font-size:0.72rem;color:#6e6e73;">메모</div>
-      <div id="dmemo" style="margin-top:4px;font-size:0.88rem;line-height:1.6;"></div>
-    </div>
-    <div class="mact" style="margin-top:20px;justify-content:flex-end;">
-      <button class="btn btn-gray" onclick="closeOv('ov-det')">닫기</button>
-      <button class="btn btn-red" onclick="openEdit(detId)">✏️ 수정</button>
-    </div>
-  </div>
-</div>
+<div class="toast" id="toast"></div>
+<button class="fab" id="fab" onclick="onFab()">＋</button>
 
 <script>
-var db = [];
-var editId = null;
-var detId = null;
-var wishMode = false;
+// ── DB ──────────────────────────────────────────
+const DB=(()=>{
+  const NAME='lp-db',VER=1;let _db;
+  function open(){return new Promise((res,rej)=>{if(_db)return res(_db);const req=indexedDB.open(NAME,VER);req.onupgradeneeded=e=>{const d=e.target.result;if(!d.objectStoreNames.contains('albums')){const s=d.createObjectStore('albums',{keyPath:'id',autoIncrement:true});['artist','genre','year'].forEach(k=>s.createIndex(k,k,{unique:false}));}if(!d.objectStoreNames.contains('wishlist'))d.createObjectStore('wishlist',{keyPath:'id',autoIncrement:true});};req.onsuccess=e=>{_db=e.target.result;res(_db)};req.onerror=e=>rej(e.target.error);});}
+  const wrap=r=>new Promise((res,rej)=>{r.onsuccess=e=>res(e.target.result);r.onerror=e=>rej(e.target.error)});
+  const store=(n,m='readonly')=>open().then(d=>d.transaction(n,m).objectStore(n));
+  const mk=n=>({getAll:()=>store(n).then(s=>wrap(s.getAll())),get:id=>store(n).then(s=>wrap(s.get(Number(id)))),add:item=>{item.createdAt=Date.now();return store(n,'readwrite').then(s=>wrap(s.add(item)));},put:item=>{item.updatedAt=Date.now();return store(n,'readwrite').then(s=>wrap(s.put(item)));},delete:id=>store(n,'readwrite').then(s=>wrap(s.delete(Number(id))))});
+  return{albums:mk('albums'),wishlist:mk('wishlist')};
+})();
 
-try { db = JSON.parse(localStorage.getItem('lp-db') || '[]'); } catch(e) { db = []; }
+// ── Discogs ─────────────────────────────────────
+const Discogs=(()=>{
+  const BASE='https://api.discogs.com',HDR={'User-Agent':'LPCollectionApp/1.0'};
+  const creds=()=>({key:localStorage.getItem('discogs_key')||'',secret:localStorage.getItem('discogs_secret')||''});
+  const auth=()=>{const{key,secret}=creds();return key?`&key=${key}&secret=${secret}`:''};
+  const api=url=>fetch(url,{headers:HDR}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
+  const search=q=>api(`${BASE}/database/search?q=${encodeURIComponent(q)}&type=release${auth()}&per_page=10`).then(d=>d.results||[]);
+  const searchBarcode=b=>api(`${BASE}/database/search?barcode=${encodeURIComponent(b)}${auth()}&per_page=5`).then(d=>d.results||[]);
+  const getStats=id=>{const a=auth();return api(`${BASE}/marketplace/stats/${id}${a?'?'+a.slice(1):''}`).catch(()=>null)};
+  const parse=item=>{const p=(item.title||'').split(' - ');return{discogsId:String(item.id),artist:p.length>1?p[0]:'',title:p.length>1?p.slice(1).join(' - '):item.title||'',year:item.year?String(item.year):'',genre:(item.genre||[]).join(', '),style:(item.style||[]).join(', '),label:(item.label||[]).join(', '),coverUrl:item.cover_image||'',thumb:item.thumb||item.cover_image||''}};
+  return{search,searchBarcode,getStats,parse};
+})();
 
-function saveDB() { try { localStorage.setItem('lp-db', JSON.stringify(db)); } catch(e) {} }
-function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
-function ge(id) { return document.getElementById(id); }
-function gv(id) { var el = ge(id); return el ? el.value : ''; }
-function sv(id, v) { var el = ge(id); if (el) el.value = (v == null) ? '' : String(v); }
+// ── Utils ────────────────────────────────────────
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
+function showToast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),dur)}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function openModal(id){document.getElementById(id).classList.add('open')}
+function starsHtml(r){return[1,2,3,4,5].map(i=>`<span class="star ${i<=(r||0)?'on':'off'}">★</span>`).join('')}
+function imgOrPh(url){if(url)return`<img src="${esc(url)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.display='none'"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem">💿</span>`;return`<span style="font-size:2rem">💿</span>`}
 
-function openOv(id) { ge(id).classList.add('active'); }
-function closeOv(id) { ge(id).classList.remove('active'); }
-function ovClose(e, id) { if (e.target === ge(id)) closeOv(id); }
+// ── Navigation ───────────────────────────────────
+const MAIN_PAGES=['collection','wishlist','scan','dashboard','settings'];
+let navStack=['collection'],currentAlbumId=null,scannerInst=null;
 
-function goTab(name) {
-  var tabs = ['col', 'wish', 'stat'];
-  for (var i = 0; i < tabs.length; i++) {
-    ge('tab-' + tabs[i]).classList.remove('active');
-    ge('nb-' + tabs[i]).classList.remove('active');
-  }
-  ge('tab-' + name).classList.add('active');
-  ge('nb-' + name).classList.add('active');
-  if (name === 'stat') renderStat();
-  if (name === 'wish') renderWish();
+function navTo(page,opts={}){
+  if(navStack[navStack.length-1]==='scan'&&page!=='scan')stopScan();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+page).classList.add('active');
+  const isMain=MAIN_PAGES.includes(page);
+  document.getElementById('bottomNav').style.display=isMain?'flex':'none';
+  document.getElementById('headerBack').style.display=isMain?'none':'flex';
+  const titles={collection:'💿 LP Collection',wishlist:'🎯 위시리스트',scan:'📷 바코드 스캔',dashboard:'📊 통계',settings:'⚙️ 설정',add:'앨범 추가',detail:'앨범 정보','add-wish':'위시 추가'};
+  document.getElementById('headerTitle').textContent=opts.title||titles[page]||'';
+  const rb=document.getElementById('headerRight');
+  if(page==='detail'){rb.style.display='flex';rb.textContent='✏️';rb.onclick=()=>navTo('add',{editId:currentAlbumId});}
+  else rb.style.display='none';
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
+  if(isMain)document.getElementById('nav-'+page)?.classList.add('active');
+  if(isMain)navStack=[page];else navStack.push(page);
+  const fab=document.getElementById('fab');
+  fab.style.display=['collection','wishlist'].includes(page)?'flex':'none';
+  if(page==='collection')loadCollection();
+  if(page==='wishlist')loadWishlist();
+  if(page==='dashboard')loadDashboard();
+  if(page==='settings')initSettings();
+  if(page==='scan')startScan();
+  if(page==='add')initAddForm(opts);
+  if(page==='detail')loadDetail(opts.id||currentAlbumId);
+  if(page==='add-wish')initWishForm(opts);
 }
 
-function updateCnt() {
-  var c = 0, w = 0;
-  for (var i = 0; i < db.length; i++) { if (db[i].wish) w++; else c++; }
-  ge('tcnt').textContent = c;
-  ge('wcnt').textContent = w;
+function goBack(){navStack.pop();navTo(navStack[navStack.length-1]||'collection')}
+function onFab(){const cur=navStack[navStack.length-1];navTo(cur==='wishlist'?'add-wish':'add')}
+
+// ── Collection ───────────────────────────────────
+let allAlbums=[],activeGenre='all';
+async function loadCollection(){allAlbums=await DB.albums.getAll();renderGenreChips();renderCollection();}
+function renderGenreChips(){
+  const genres=[...new Set(allAlbums.flatMap(a=>(a.genre||'').split(',').map(g=>g.trim())).filter(Boolean))];
+  document.getElementById('filterBar').innerHTML=`<div class="chip active" onclick="setGenre(this,'all')">전체</div>`+genres.map(g=>`<div class="chip" onclick="setGenre(this,'${esc(g)}')">${esc(g)}</div>`).join('');
+}
+function setGenre(el,g){activeGenre=g;document.querySelectorAll('#filterBar .chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');renderCollection();}
+function renderCollection(){
+  const q=document.getElementById('searchInput').value.toLowerCase();
+  const sort=document.getElementById('sortSelect').value;
+  let list=allAlbums.filter(a=>{
+    const ms=!q||(a.title||'').toLowerCase().includes(q)||(a.artist||'').toLowerCase().includes(q);
+    const mg=activeGenre==='all'||(a.genre||'').toLowerCase().includes(activeGenre.toLowerCase());
+    return ms&&mg;
+  });
+  list.sort((a,b)=>{if(sort==='artist')return(a.artist||'').localeCompare(b.artist||'');if(sort==='title')return(a.title||'').localeCompare(b.title||'');if(sort==='year')return(b.year||0)-(a.year||0);if(sort==='rating')return(b.rating||0)-(a.rating||0);return(b.createdAt||0)-(a.createdAt||0);});
+  document.getElementById('albumCount').textContent=list.length+'장';
+  const g=document.getElementById('albumGrid');
+  if(!list.length){g.innerHTML=`<div class="empty" style="grid-column:1/-1"><div class="empty-icon">💿</div><div class="empty-text">LP가 없어요</div><div class="empty-sub">아래 + 버튼으로 추가해보세요</div></div>`;return;}
+  g.innerHTML=list.map(a=>`<div class="album-card" onclick="openDetail(${a.id})"><div class="album-cover">${imgOrPh(a.coverUrl)}</div><div class="album-info"><div class="album-title">${esc(a.title||'제목 없음')}</div><div class="album-artist">${esc(a.artist||'')}</div><div class="album-year">${esc(a.year||'')}</div><div class="album-rating">${a.rating?starsHtml(a.rating):''}</div></div></div>`).join('');
+}
+function openDetail(id){currentAlbumId=id;navTo('detail',{id});}
+
+// ── Detail ───────────────────────────────────────
+let currentAlbum=null;
+async function loadDetail(id){
+  currentAlbum=await DB.albums.get(id);
+  if(!currentAlbum){navTo('collection');return;}
+  const a=currentAlbum;
+  const gain=a.purchasePrice&&a.listPrice?a.listPrice-a.purchasePrice:null;
+  const gainHtml=gain!==null?`<span class="${gain>=0?'green':'red'}">${gain>=0?'+':''}${gain.toLocaleString()}원</span>`:'-';
+  document.getElementById('detailContent').innerHTML=`
+    <div class="detail-cover-wrap">${a.coverUrl?`<img class="detail-cover" src="${esc(a.coverUrl)}" onerror="this.outerHTML='<div class=detail-cover-placeholder>💿</div>'">`:'<div class="detail-cover-placeholder">💿</div>'}</div>
+    <div class="detail-title">${esc(a.title||'제목 없음')}</div>
+    <div class="detail-artist">${esc(a.artist||'')}</div>
+    <div class="info-card">${irow('발매연도',a.year)}${irow('장르',a.genre)}${irow('레이블',a.label)}${irow('수량',a.quantity?a.quantity+'장':null)}${irow('바코드',a.barcode)}</div>
+    ${(a.purchasePrice||a.listPrice||a.purchaseStore||a.purchaseDate)?`<div class="info-card">${irow('구입가',a.purchasePrice?a.purchasePrice.toLocaleString()+'원':null)}${irow('정가',a.listPrice?a.listPrice.toLocaleString()+'원':null)}${irow('구입처',a.purchaseStore)}${irow('구입일',a.purchaseDate)}${gain!==null?`<div class="info-row"><span class="info-key">정가 대비</span><span class="info-val">${gainHtml}</span></div>`:''}</div>`:''}
+    <div style="margin-top:12px;background:var(--s);border-radius:var(--r);padding:14px 16px"><div style="font-size:.78rem;color:var(--ts);margin-bottom:8px">별점</div><div style="font-size:1.6rem">${a.rating?starsHtml(a.rating):'<span style="color:var(--td)">미평가</span>'}</div></div>
+    ${a.memo?`<div class="memo-box" style="margin-top:12px"><div class="memo-label">메모</div><div class="memo-text">${esc(a.memo)}</div></div>`:''}
+    <div style="margin-top:16px">${a.discogsId?`<button class="btn btn-outline" style="margin-bottom:8px" id="statsBtn" onclick="fetchStats()">🌐 Discogs 현재 시세 조회</button>`:''}</div>
+    <div id="statsBox"></div>
+    <div class="action-row" style="margin-top:8px">
+      <button class="btn btn-secondary" onclick="moveDetailToWish()">🎯 위시로 이동</button>
+      <button class="btn btn-danger" onclick="openModal('delModal')">🗑 삭제</button>
+    </div><div style="height:8px"></div>`;
+}
+function irow(k,v){if(!v&&v!==0)return'';return`<div class="info-row"><span class="info-key">${k}</span><span class="info-val">${esc(String(v))}</span></div>`}
+async function fetchStats(){
+  const btn=document.getElementById('statsBtn');if(!btn)return;
+  btn.innerHTML='<span class="spinner"></span> 조회 중...';btn.disabled=true;
+  try{const stats=await Discogs.getStats(currentAlbum.discogsId);if(stats&&stats.lowest_price){const lp=stats.lowest_price;document.getElementById('statsBox').innerHTML=`<div class="price-row"><div class="price-box"><div class="price-box-label">최저가</div><div class="price-box-val gold">${lp.value?.toLocaleString()||'-'} ${lp.currency||'USD'}</div></div><div class="price-box"><div class="price-box-label">중간가</div><div class="price-box-val">${stats.median_price?.value?.toLocaleString()||'-'}</div></div><div class="price-box"><div class="price-box-label">판매 중</div><div class="price-box-val">${stats.num_for_sale||0}개</div></div></div>`;btn.style.display='none';}else{showToast('시세 정보 없음');btn.innerHTML='🌐 Discogs 현재 시세 조회';btn.disabled=false;}}catch{showToast('조회 실패');btn.innerHTML='🌐 Discogs 현재 시세 조회';btn.disabled=false;}
+}
+async function moveDetailToWish(){const a=currentAlbum;await DB.wishlist.add({artist:a.artist,title:a.title,year:a.year,genre:a.genre,coverUrl:a.coverUrl,discogsId:a.discogsId,memo:''});await DB.albums.delete(a.id);showToast('위시리스트로 이동했어요');setTimeout(()=>navTo('wishlist'),700);}
+async function confirmDelete(){await DB.albums.delete(currentAlbum.id);closeModal('delModal');showToast('삭제되었어요');setTimeout(()=>navTo('collection'),600);}
+
+// ── Add/Edit ─────────────────────────────────────
+let addRating=0;
+async function initAddForm(opts={}){
+  addRating=0;
+  document.getElementById('headerTitle').textContent=opts.editId?'앨범 수정':'앨범 추가';
+  ['addArtist','addTitle','addYear','addGenre','addLabel','addBarcode','addBuyPrice','addListPrice','addStore','addDate','addMemo','addDiscogsId'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('addDiscogsResults').innerHTML='';
+  document.getElementById('addQty').value='1';
+  document.getElementById('addEditId').value='';
+  document.getElementById('addCoverUrl').value='';
+  resetCover('addCoverUpload');setAddStar(0);
+  if(opts.editId){
+    document.getElementById('addEditId').value=opts.editId;
+    const a=await DB.albums.get(opts.editId);
+    if(a){document.getElementById('addArtist').value=a.artist||'';document.getElementById('addTitle').value=a.title||'';document.getElementById('addYear').value=a.year||'';document.getElementById('addQty').value=a.quantity||1;document.getElementById('addGenre').value=a.genre||'';document.getElementById('addLabel').value=a.label||'';document.getElementById('addBarcode').value=a.barcode||'';document.getElementById('addBuyPrice').value=a.purchasePrice||'';document.getElementById('addListPrice').value=a.listPrice||'';document.getElementById('addStore').value=a.purchaseStore||'';document.getElementById('addDate').value=a.purchaseDate||'';document.getElementById('addMemo').value=a.memo||'';document.getElementById('addDiscogsId').value=a.discogsId||'';if(a.coverUrl)setCover('addCoverUpload','addCoverUrl',a.coverUrl);if(a.rating)setAddStar(a.rating);}
+  }else if(opts.barcode){document.getElementById('addBarcode').value=opts.barcode;document.getElementById('addDiscogsQuery').value=opts.barcode;doDiscogsSearch();}
+}
+function resetCover(wid){const w=document.getElementById(wid);const img=w.querySelector('img');if(img)img.remove();w.querySelector('.cu-icon').style.display='';w.querySelector('.cu-hint').style.display='';}
+function setCover(wid,urlId,url){document.getElementById(urlId).value=url;const w=document.getElementById(wid);const old=w.querySelector('img');if(old)old.remove();const img=document.createElement('img');img.src=url;img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';w.style.position='relative';w.insertBefore(img,w.firstChild);w.querySelector('.cu-icon').style.display='none';w.querySelector('.cu-hint').style.display='none';}
+function setAddStar(v){addRating=v;document.querySelectorAll('#addStarRating .star').forEach((s,i)=>{s.classList.toggle('on',i<v);s.classList.toggle('off',i>=v);});}
+async function doDiscogsSearch(){
+  const q=document.getElementById('addDiscogsQuery').value.trim();if(!q)return;
+  const btn=document.querySelector('#page-add .discogs-box .btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
+  try{const results=await Discogs.search(q);const el=document.getElementById('addDiscogsResults');el.innerHTML=results.length?`<div class="result-list">${results.slice(0,8).map(r=>{const p=Discogs.parse(r);return`<div class="result-item" onclick='applyDiscogs(${JSON.stringify(p).replace(/'/g,"\\'")})'><img class="result-thumb" src="${esc(p.thumb||'')}" onerror="this.src=''"><div class="result-info"><div class="result-title">${esc(p.artist)} — ${esc(p.title)}</div><div class="result-sub">${esc(p.year)} · ${esc(p.label||p.genre||'')}</div></div></div>`;}).join('')}</div>`:'<p style="font-size:.8rem;color:var(--td);margin-top:8px">결과 없음</p>';}catch{showToast('검색 실패: API 키를 확인해주세요');}
+  btn.innerHTML='검색';btn.disabled=false;
+}
+function applyDiscogs(p){if(typeof p==='string')p=JSON.parse(p);document.getElementById('addArtist').value=p.artist||'';document.getElementById('addTitle').value=p.title||'';document.getElementById('addYear').value=p.year||'';document.getElementById('addGenre').value=p.style||p.genre||'';document.getElementById('addLabel').value=p.label||'';document.getElementById('addDiscogsId').value=p.discogsId||'';if(p.coverUrl)setCover('addCoverUpload','addCoverUrl',p.coverUrl);document.getElementById('addDiscogsResults').innerHTML='';document.getElementById('addDiscogsQuery').value='';showToast('정보가 자동 입력되었어요 ✓');}
+function handleAddCover(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>setCover('addCoverUpload','addCoverUrl',e.target.result);r.readAsDataURL(f);}
+async function saveAlbum(){
+  const artist=document.getElementById('addArtist').value.trim();
+  const title=document.getElementById('addTitle').value.trim();
+  if(!artist||!title){showToast('아티스트와 앨범명을 입력해주세요');return;}
+  const item={artist,title,year:document.getElementById('addYear').value||'',quantity:Number(document.getElementById('addQty').value)||1,genre:document.getElementById('addGenre').value.trim(),label:document.getElementById('addLabel').value.trim(),barcode:document.getElementById('addBarcode').value.trim(),coverUrl:document.getElementById('addCoverUrl').value,purchasePrice:Number(document.getElementById('addBuyPrice').value)||0,listPrice:Number(document.getElementById('addListPrice').value)||0,purchaseStore:document.getElementById('addStore').value.trim(),purchaseDate:document.getElementById('addDate').value,rating:addRating,memo:document.getElementById('addMemo').value.trim(),discogsId:document.getElementById('addDiscogsId').value};
+  const editId=document.getElementById('addEditId').value;
+  if(editId){item.id=Number(editId);await DB.albums.put(item);showToast('수정되었어요 ✓');}else{await DB.albums.add(item);showToast('추가되었어요 ✓');}
+  setTimeout(()=>navTo('collection'),700);
 }
 
-function updateGenres() {
-  var sel = ge('sg'), cur = sel.value, gs = [];
-  for (var i = 0; i < db.length; i++) {
-    if (db[i].genre && !db[i].wish && gs.indexOf(db[i].genre) < 0) gs.push(db[i].genre);
-  }
-  gs.sort();
-  sel.innerHTML = '<option value="">전체 장르</option>';
-  for (var j = 0; j < gs.length; j++) {
-    var o = document.createElement('option');
-    o.value = gs[j]; o.textContent = gs[j];
-    if (gs[j] === cur) o.selected = true;
-    sel.appendChild(o);
-  }
+// ── Wishlist ─────────────────────────────────────
+async function loadWishlist(){
+  const list=await DB.wishlist.getAll();
+  const el=document.getElementById('wishContent');
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🎯</div><div class="empty-text">위시리스트가 비어있어요</div><div class="empty-sub">갖고 싶은 LP를 추가해보세요</div></div>`;return;}
+  el.innerHTML=`<div class="wish-list">${list.map(w=>`<div class="wish-item"><div class="wish-thumb">${imgOrPh(w.coverUrl)}</div><div class="wish-body"><div class="wish-title">${esc(w.title||'제목 없음')}</div><div class="wish-artist">${esc(w.artist||'')}</div><div class="wish-meta">${esc(w.year||'')}${w.genre?' · '+esc(w.genre):''}</div>${w.memo?`<div class="wish-meta">${esc(w.memo)}</div>`:''}</div><div class="wish-actions"><button class="wish-btn" onclick="wishToCollection(${w.id})">💿</button><button class="wish-btn" onclick="deleteWish(${w.id},this)">🗑</button></div></div>`).join('')}</div>`;
+}
+async function wishToCollection(id){const item=await DB.wishlist.get(id);if(!item)return;await DB.albums.add({artist:item.artist,title:item.title,year:item.year,genre:item.genre,coverUrl:item.coverUrl,discogsId:item.discogsId,quantity:1,memo:item.memo||''});await DB.wishlist.delete(id);showToast('컬렉션으로 이동했어요 ✓');loadWishlist();}
+async function deleteWish(id,btn){if(!confirm('삭제할까요?'))return;await DB.wishlist.delete(id);btn.closest('.wish-item').remove();showToast('삭제했어요');}
+
+function initWishForm(opts={}){['wishArtist','wishTitle','wishYear','wishGenre','wishMemo','wishDiscogsId'].forEach(id=>document.getElementById(id).value='');document.getElementById('wishCoverUrl').value='';document.getElementById('wishSearchResults').innerHTML='';resetCover('wishCoverUpload');if(opts.barcode){document.getElementById('wishQuery').value=opts.barcode;doWishSearch();}}
+async function doWishSearch(){const q=document.getElementById('wishQuery').value.trim();if(!q)return;const btn=document.querySelector('#page-add-wish .discogs-box .btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;try{const results=await Discogs.search(q);const el=document.getElementById('wishSearchResults');el.innerHTML=results.length?`<div class="result-list">${results.slice(0,8).map(r=>{const p=Discogs.parse(r);return`<div class="result-item" onclick='applyWish(${JSON.stringify(p).replace(/'/g,"\\'")})'><img class="result-thumb" src="${esc(p.thumb||'')}" onerror="this.src=''"><div class="result-info"><div class="result-title">${esc(p.artist)} — ${esc(p.title)}</div><div class="result-sub">${esc(p.year)}</div></div></div>`;}).join('')}</div>`:'<p style="font-size:.8rem;color:var(--td);margin-top:8px">결과 없음</p>';}catch{showToast('검색 실패');}btn.innerHTML='검색';btn.disabled=false;}
+function applyWish(p){if(typeof p==='string')p=JSON.parse(p);document.getElementById('wishArtist').value=p.artist;document.getElementById('wishTitle').value=p.title;document.getElementById('wishYear').value=p.year;document.getElementById('wishGenre').value=p.style||p.genre;document.getElementById('wishDiscogsId').value=p.discogsId;if(p.coverUrl)setCover('wishCoverUpload','wishCoverUrl',p.coverUrl);document.getElementById('wishSearchResults').innerHTML='';showToast('입력 완료 ✓');}
+function handleWishCover(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>setCover('wishCoverUpload','wishCoverUrl',e.target.result);r.readAsDataURL(f);}
+async function saveWish(){const artist=document.getElementById('wishArtist').value.trim();const title=document.getElementById('wishTitle').value.trim();if(!artist||!title){showToast('아티스트와 앨범명을 입력하세요');return;}await DB.wishlist.add({artist,title,year:document.getElementById('wishYear').value,genre:document.getElementById('wishGenre').value.trim(),coverUrl:document.getElementById('wishCoverUrl').value,memo:document.getElementById('wishMemo').value.trim(),discogsId:document.getElementById('wishDiscogsId').value});showToast('위시리스트에 추가했어요 ✓');setTimeout(()=>navTo('wishlist'),700);}
+
+// ── Dashboard ────────────────────────────────────
+let gChart=null,yChart=null;
+async function loadDashboard(){
+  Chart.defaults.color='#999';Chart.defaults.borderColor='#2a2a2a';
+  const albums=await DB.albums.getAll(),wish=await DB.wishlist.getAll();
+  const totalQty=albums.reduce((s,a)=>s+(a.quantity||1),0);
+  const totalVal=albums.reduce((s,a)=>s+(a.purchasePrice||0),0);
+  const gSet={},ySet={},aSet={};
+  albums.forEach(a=>{(a.genre||'기타').split(',').forEach(g=>{g=g.trim()||'기타';gSet[g]=(gSet[g]||0)+1;});if(a.year)ySet[a.year]=(ySet[a.year]||0)+1;if(a.artist)aSet[a.artist]=(aSet[a.artist]||0)+1;});
+  document.getElementById('statsGrid').innerHTML=`<div class="stat-card"><div class="stat-val">${totalQty}</div><div class="stat-label">총 LP 수</div></div><div class="stat-card"><div class="stat-val">${Object.keys(gSet).length}</div><div class="stat-label">장르 수</div></div><div class="stat-card"><div class="stat-val">${totalVal.toLocaleString()}</div><div class="stat-label">총 구매액(원)</div></div><div class="stat-card"><div class="stat-val">${wish.length}</div><div class="stat-label">위시리스트</div></div>`;
+  if(gChart){gChart.destroy();gChart=null;}if(yChart){yChart.destroy();yChart=null;}
+  const gLabels=Object.keys(gSet).sort((a,b)=>gSet[b]-gSet[a]).slice(0,8);
+  const colors=['#D4A017','#E86A4C','#4C9EE8','#4CE87A','#E84C9E','#9E4CE8','#4CE8D4','#E8D44C'];
+  gChart=new Chart(document.getElementById('genreChart'),{type:'doughnut',data:{labels:gLabels,datasets:[{data:gLabels.map(k=>gSet[k]),backgroundColor:colors,borderWidth:2,borderColor:'#1e1e1e'}]},options:{plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}},cutout:'60%'}});
+  const years=Object.keys(ySet).sort();
+  yChart=new Chart(document.getElementById('yearChart'),{type:'bar',data:{labels:years,datasets:[{data:years.map(y=>ySet[y]),backgroundColor:'#D4A017',borderRadius:4,borderSkipped:false}]},options:{plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,ticks:{stepSize:1}},x:{ticks:{maxRotation:45}}}}});
+  const sorted=Object.entries(aSet).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  document.getElementById('topArtists').innerHTML=sorted.length?sorted.map(([name,cnt],i)=>`<div class="top-item"><span class="top-rank">${i+1}</span><span class="top-name">${esc(name)}</span><span class="top-count">${cnt}장</span></div>`).join(''):'<p style="color:var(--td);font-size:.85rem;padding:10px 0">데이터 없음</p>';
 }
 
-function makeCoverEl(lp) {
-  var d = document.createElement('div');
-  d.className = 'cimg';
-  if (lp.cover) {
-    var img = document.createElement('img');
-    img.src = lp.cover;
-    img.alt = '';
-    img.onerror = function() { d.innerHTML = ''; d.appendChild(document.createTextNode('🎵')); };
-    d.appendChild(img);
-  } else {
-    d.appendChild(document.createTextNode('🎵'));
-  }
-  return d;
+// ── Scan ─────────────────────────────────────────
+let lastBarcode='';
+function startScan(){
+  lastBarcode='';document.getElementById('scanResult').style.display='none';document.getElementById('scanStatus').textContent='카메라를 시작하는 중...';
+  if(scannerInst){scannerInst.stop().catch(()=>{}).then(()=>{scannerInst=null;_startScan();});}else _startScan();
 }
-
-function render() {
-  var q = gv('sq').toLowerCase();
-  var g = gv('sg');
-  var list = [];
-  for (var i = 0; i < db.length; i++) {
-    var l = db[i];
-    if (!l.wish
-      && (!q || l.artist.toLowerCase().indexOf(q) >= 0 || l.album.toLowerCase().indexOf(q) >= 0)
-      && (!g || l.genre === g)) list.push(l);
-  }
-  var grid = ge('cgrid');
-  grid.innerHTML = '';
-  if (!list.length) {
-    var emp = document.createElement('div');
-    emp.className = 'empty';
-    emp.innerHTML = '<div class="ico">📀</div><div>LP가 없어요. 추가해보세요!</div>';
-    grid.appendChild(emp);
-  } else {
-    for (var j = 0; j < list.length; j++) {
-      (function(lp) {
-        var card = document.createElement('div');
-        card.className = 'card';
-        card.appendChild(makeCoverEl(lp));
-        var meta = [];
-        if (lp.year) meta.push(lp.year);
-        if (lp.genre) meta.push(lp.genre);
-        var info = document.createElement('div');
-        info.className = 'cinfo';
-        info.innerHTML = '<div class="cart">' + lp.artist + '</div>'
-          + '<div class="calb">' + lp.album + '</div>'
-          + '<div class="cmeta">' + meta.join(' · ') + '</div>';
-        card.appendChild(info);
-        card.addEventListener('click', function() { openDet(lp.id); });
-        grid.appendChild(card);
-      })(list[j]);
-    }
-  }
-  updateCnt();
-  updateGenres();
+function _startScan(){
+  scannerInst=new Html5Qrcode('reader');
+  scannerInst.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:100},formatsToSupport:[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E]},onBarcodeScanned,()=>{})
+    .then(()=>document.getElementById('scanStatus').textContent='바코드를 화면 가운데에 맞춰주세요')
+    .catch(err=>document.getElementById('scanStatus').innerHTML='카메라 권한이 필요합니다<br><small>'+err+'</small>');
 }
-
-function renderWish() {
-  var q = gv('wq').toLowerCase();
-  var list = [];
-  for (var i = 0; i < db.length; i++) {
-    var l = db[i];
-    if (l.wish && (!q || l.artist.toLowerCase().indexOf(q) >= 0 || l.album.toLowerCase().indexOf(q) >= 0)) list.push(l);
-  }
-  var grid = ge('wgrid');
-  grid.innerHTML = '';
-  if (!list.length) {
-    var emp = document.createElement('div');
-    emp.className = 'empty';
-    emp.innerHTML = '<div class="ico">💛</div><div>위시리스트가 비어있어요!</div>';
-    grid.appendChild(emp);
-  } else {
-    for (var j = 0; j < list.length; j++) {
-      (function(lp) {
-        var card = document.createElement('div');
-        card.className = 'card wish';
-        card.appendChild(makeCoverEl(lp));
-        var info = document.createElement('div');
-        info.className = 'cinfo';
-        info.innerHTML = '<div class="cart">' + lp.artist + '</div>'
-          + '<div class="calb">' + lp.album + '</div>'
-          + '<div class="cmeta">' + (lp.year || '') + '</div>'
-          + '<span class="wbadge">위시</span>';
-        card.appendChild(info);
-        card.addEventListener('click', function() { openDet(lp.id); });
-        grid.appendChild(card);
-      })(list[j]);
-    }
-  }
-  updateCnt();
+function stopScan(){if(scannerInst){scannerInst.stop().catch(()=>{});scannerInst=null;}}
+async function onBarcodeScanned(barcode){
+  if(barcode===lastBarcode)return;lastBarcode=barcode;stopScan();
+  document.getElementById('barcodeVal').textContent=barcode;document.getElementById('scanResult').style.display='block';document.getElementById('scanStatus').textContent='인식 완료!';
+  const preview=document.getElementById('discogsPreview');preview.innerHTML='<span class="spinner"></span>';
+  try{const results=await Discogs.searchBarcode(barcode);if(results.length){const p=Discogs.parse(results[0]);preview.innerHTML=`<div class="result-item" style="background:var(--s2)"><img class="result-thumb" src="${esc(p.thumb||'')}" onerror="this.src=''"><div class="result-info"><div class="result-title">${esc(p.artist)} — ${esc(p.title)}</div><div class="result-sub">${esc(p.year)} · ${esc(p.label||'')}</div></div></div>`;}else preview.innerHTML='<p style="font-size:.8rem;color:var(--td)">앨범 정보를 찾지 못했어요.</p>';}catch{preview.innerHTML='<p style="font-size:.8rem;color:var(--td)">정보 검색 실패.</p>';}
 }
+function scanGoAdd(){navTo('add',{barcode:lastBarcode});}
+function scanGoWish(){navTo('add-wish',{barcode:lastBarcode});}
+function restartScan(){startScan();}
 
-function renderStat() {
-  var col = [];
-  for (var i = 0; i < db.length; i++) { if (!db[i].wish) col.push(db[i]); }
-  ge('st').textContent = col.length;
-  var gs = [], as = [];
-  for (var j = 0; j < col.length; j++) {
-    if (col[j].genre && gs.indexOf(col[j].genre) < 0) gs.push(col[j].genre);
-    if (as.indexOf(col[j].artist) < 0) as.push(col[j].artist);
-  }
-  ge('sg2').textContent = gs.length;
-  ge('sa').textContent = as.length;
-  var tot = 0;
-  for (var k = 0; k < col.length; k++) tot += (parseInt(col[k].price) || 0);
-  ge('sp').textContent = '₩' + tot.toLocaleString();
-  var gm = {}, ym = {};
-  for (var n = 0; n < col.length; n++) {
-    if (col[n].genre) gm[col[n].genre] = (gm[col[n].genre] || 0) + 1;
-    if (col[n].year) ym[col[n].year] = (ym[col[n].year] || 0) + 1;
-  }
-  drawBar('cg', gm, false);
-  drawBar('cy', ym, true);
-}
+// ── Settings ──────────────────────────────────────
+function initSettings(){document.getElementById('discogsKey').value=localStorage.getItem('discogs_key')||'';document.getElementById('discogsSecret').value=localStorage.getItem('discogs_secret')||'';}
+function saveDiscogsKey(){localStorage.setItem('discogs_key',document.getElementById('discogsKey').value.trim());localStorage.setItem('discogs_secret',document.getElementById('discogsSecret').value.trim());showToast('저장되었어요 ✓');}
+async function exportData(){const albums=await DB.albums.getAll(),wishlist=await DB.wishlist.getAll();const blob=new Blob([JSON.stringify({albums,wishlist,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`lp-collection-${new Date().toISOString().slice(0,10)}.json`;a.click();}
+async function importData(input){const file=input.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!confirm(`앨범 ${data.albums?.length||0}개, 위시 ${data.wishlist?.length||0}개를 가져올까요?`))return;for(const a of(data.albums||[])){delete a.id;await DB.albums.add(a);}for(const w of(data.wishlist||[])){delete w.id;await DB.wishlist.add(w);}showToast('가져오기 완료 ✓');}catch{showToast('파일 형식이 올바르지 않아요');}}
+async function clearData(){if(!confirm('모든 LP 데이터가 삭제됩니다. 정말요?'))return;if(!confirm('⚠️ 되돌릴 수 없습니다. 정말요?'))return;const albums=await DB.albums.getAll(),wishes=await DB.wishlist.getAll();for(const a of albums)await DB.albums.delete(a.id);for(const w of wishes)await DB.wishlist.delete(w.id);showToast('모든 데이터가 삭제되었어요');}
 
-function drawBar(id, map, sortByKey) {
-  var cont = ge(id);
-  var ent = [];
-  for (var k in map) ent.push([k, map[k]]);
-  if (!ent.length) { cont.innerHTML = '<p style="font-size:0.82rem;color:#6e6e73;">데이터 없음</p>'; return; }
-  ent.sort(sortByKey ? function(a,b){return a[0]-b[0];} : function(a,b){return b[1]-a[1];});
-  var mx = 0;
-  for (var i = 0; i < ent.length; i++) if (ent[i][1] > mx) mx = ent[i][1];
-  var html = '';
-  var lim = Math.min(ent.length, 10);
-  for (var j = 0; j < lim; j++) {
-    var pct = (ent[j][1] / mx * 100).toFixed(1);
-    html += '<div class="brow"><div class="blbl">' + ent[j][0] + '</div>'
-      + '<div class="btrk"><div class="bfil" style="width:' + pct + '%"></div></div>'
-      + '<div class="bcnt">' + ent[j][1] + '</div></div>';
-  }
-  cont.innerHTML = html;
-}
-
-function openAdd(wish) {
-  wishMode = wish;
-  editId = null;
-  ge('mtitle').textContent = wish ? '위시리스트 추가' : 'LP 추가';
-  var flds = ['cover','artist','album','year','genre','label','price','date','store','memo'];
-  for (var i = 0; i < flds.length; i++) sv('f-' + flds[i], '');
-  ge('btn-del').style.display = 'none';
-  openOv('ov-add');
-}
-
-function openEdit(id) {
-  var lp = null;
-  for (var i = 0; i < db.length; i++) { if (db[i].id === id) { lp = db[i]; break; } }
-  if (!lp) return;
-  editId = id;
-  wishMode = lp.wish;
-  ge('mtitle').textContent = 'LP 수정';
-  var flds = ['cover','artist','album','year','genre','label','price','date','store','memo'];
-  for (var i = 0; i < flds.length; i++) sv('f-' + flds[i], lp[flds[i]]);
-  ge('btn-del').style.display = 'inline-block';
-  closeOv('ov-det');
-  openOv('ov-add');
-}
-
-function doSave() {
-  var artist = gv('f-artist').trim();
-  var album = gv('f-album').trim();
-  if (!artist || !album) { alert('아티스트와 앨범명은 필수입니다.'); return; }
-  var lp = {
-    id: editId || uid(), wish: wishMode,
-    artist: artist, album: album,
-    year: gv('f-year'), genre: gv('f-genre').trim(),
-    label: gv('f-label').trim(), price: gv('f-price'),
-    date: gv('f-date'), store: gv('f-store').trim(),
-    memo: gv('f-memo').trim(), cover: gv('f-cover').trim()
-  };
-  if (editId) {
-    for (var i = 0; i < db.length; i++) { if (db[i].id === editId) { db[i] = lp; break; } }
-  } else {
-    db.unshift(lp);
-  }
-  saveDB();
-  closeOv('ov-add');
-  render();
-  renderWish();
-}
-
-function doDelete() {
-  if (!confirm('삭제하시겠어요?')) return;
-  var nd = [];
-  for (var i = 0; i < db.length; i++) { if (db[i].id !== editId) nd.push(db[i]); }
-  db = nd;
-  saveDB();
-  closeOv('ov-add');
-  render();
-  renderWish();
-}
-
-function openDet(id) {
-  detId = id;
-  var lp = null;
-  for (var i = 0; i < db.length; i++) { if (db[i].id === id) { lp = db[i]; break; } }
-  if (!lp) return;
-  var dcov = ge('dcov');
-  dcov.innerHTML = '';
-  if (lp.cover) {
-    var img = document.createElement('img');
-    img.src = lp.cover;
-    img.onerror = function() { dcov.innerHTML = ''; dcov.appendChild(document.createTextNode('🎵')); };
-    dcov.appendChild(img);
-  } else {
-    dcov.appendChild(document.createTextNode('🎵'));
-  }
-  ge('dart').textContent = lp.artist;
-  ge('dalb').textContent = lp.album;
-  var pairs = [
-    ['발매년도', lp.year], ['장르', lp.genre], ['레이블', lp.label],
-    ['구입가', lp.price ? '₩' + parseInt(lp.price).toLocaleString() : ''],
-    ['구입일', lp.date], ['구입처', lp.store]
-  ];
-  var html = '';
-  for (var i = 0; i < pairs.length; i++) {
-    if (pairs[i][1]) html += '<div class="df"><div class="dl">' + pairs[i][0] + '</div><div class="dv">' + pairs[i][1] + '</div></div>';
-  }
-  ge('dflds').innerHTML = html;
-  if (lp.memo) { ge('dmemo').textContent = lp.memo; ge('dmwrap').style.display = 'block'; }
-  else ge('dmwrap').style.display = 'none';
-  openOv('ov-det');
-}
-
-function doCSV() {
-  var cols = ['아티스트','앨범','연도','장르','레이블','구입가','구입일','구입처','메모'];
-  var rows = [];
-  for (var i = 0; i < db.length; i++) {
-    if (db[i].wish) continue;
-    var l = db[i];
-    var row = [l.artist,l.album,l.year,l.genre,l.label,l.price,l.date,l.store,l.memo]
-      .map(function(v) { return '"' + (v || '').replace(/"/g,'""') + '"'; }).join(',');
-    rows.push(row);
-  }
-  var csv = '﻿' + cols.join(',') + '
-' + rows.join('
-');
-  var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
-  a.download = 'lp.csv';
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
-
-render();
-updateCnt();
+// ── Init ──────────────────────────────────────────
+loadCollection();
 </script>
 </body>
 </html>
