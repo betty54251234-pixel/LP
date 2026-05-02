@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LP">
@@ -70,10 +70,11 @@ textarea.form-input{resize:vertical;min-height:80px}
 .cover-upload img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cu-icon{font-size:2.2rem;color:var(--td)}
 .cu-hint{font-size:.7rem;color:var(--td);margin-top:5px}
-.discogs-box{background:var(--s2);border-radius:var(--r);padding:14px;margin-bottom:20px}
-.discogs-label{font-size:.75rem;font-weight:700;color:var(--ac);margin-bottom:10px}
-.discogs-row{display:flex;gap:8px}
-.discogs-row input{flex:1}
+.mb-box{background:var(--s2);border-radius:var(--r);padding:14px;margin-bottom:20px}
+.mb-label{font-size:.75rem;font-weight:700;color:var(--ac);margin-bottom:4px}
+.mb-sublabel{font-size:.7rem;color:var(--td);margin-bottom:10px}
+.mb-row{display:flex;gap:8px}
+.mb-row input{flex:1}
 .result-list{display:flex;flex-direction:column;gap:8px;margin-top:12px;max-height:280px;overflow-y:auto}
 .result-item{display:flex;gap:12px;align-items:center;padding:10px;background:var(--s);border-radius:var(--rs);cursor:pointer}
 .result-item:active{opacity:.7}
@@ -137,21 +138,18 @@ textarea.form-input{resize:vertical;min-height:80px}
 .empty-icon{font-size:4rem;margin-bottom:14px}
 .empty-text{font-size:.95rem;color:var(--ts);margin-bottom:6px}
 .empty-sub{font-size:.82rem;color:var(--td)}
-.price-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
-.price-box{background:var(--s2);border-radius:var(--rs);padding:10px 8px;text-align:center}
-.price-box-label{font-size:.65rem;color:var(--td);margin-bottom:4px}
-.price-box-val{font-size:.88rem;font-weight:600}
 .top-list{display:flex;flex-direction:column}
 .top-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #222}
 .top-item:last-child{border-bottom:none}
 .top-rank{font-size:.85rem;color:var(--td);width:24px}
 .top-name{flex:1;font-size:.88rem;padding:0 10px}
 .top-count{font-size:.82rem;color:var(--ac);font-weight:600}
+.badge{display:inline-block;background:rgba(212,160,23,.18);color:var(--ac);font-size:.65rem;font-weight:700;padding:2px 7px;border-radius:8px;margin-left:6px;vertical-align:middle}
 </style>
 </head>
 <body>
 
-<header class="header" id="mainHeader">
+<header class="header">
   <button class="hbtn" id="headerBack" onclick="goBack()" style="display:none">←</button>
   <h1 id="headerTitle">💿 LP Collection</h1>
   <button class="hbtn" id="headerRight" style="display:none"></button>
@@ -181,7 +179,7 @@ textarea.form-input{resize:vertical;min-height:80px}
 
 <!-- 스캔 -->
 <div class="page" id="page-scan">
-  <p style="font-size:.85rem;color:var(--ts);margin-bottom:16px;text-align:center">LP 바코드를 카메라로 스캔하세요</p>
+  <p style="font-size:.85rem;color:var(--ts);margin-bottom:16px;text-align:center">LP 바코드를 카메라로 스캔하세요<br><span style="font-size:.75rem;color:var(--td)">MusicBrainz로 앨범 정보를 자동으로 불러와요</span></p>
   <div class="scan-wrap">
     <div id="reader"></div>
     <div id="scanStatus" style="text-align:center;margin-top:12px;font-size:.85rem;color:var(--ts)">스캔 대기 중...</div>
@@ -189,10 +187,10 @@ textarea.form-input{resize:vertical;min-height:80px}
   <div id="scanResult" style="display:none;margin-top:16px">
     <div class="scan-result">
       <div class="scan-result-title">✅ 바코드 인식됨</div>
-      <p id="barcodeVal" style="font-size:.9rem;margin-bottom:12px;font-family:monospace"></p>
-      <div id="discogsPreview" style="margin-bottom:12px"></div>
+      <p id="barcodeVal" style="font-size:.9rem;margin-bottom:12px;font-family:monospace;color:var(--ts)"></p>
+      <div id="scanPreview" style="margin-bottom:12px"></div>
       <button class="btn btn-primary" onclick="scanGoAdd()" style="margin-bottom:8px">💿 컬렉션에 추가</button>
-      <button class="btn btn-secondary" onclick="scanGoWish()">🎯 위시리스트에 추가</button>
+      <button class="btn btn-secondary" onclick="scanGoWish()">🌙 위시리스트에 추가</button>
       <button class="btn btn-outline" style="margin-top:8px" onclick="restartScan()">🔄 다시 스캔</button>
     </div>
   </div>
@@ -209,13 +207,11 @@ textarea.form-input{resize:vertical;min-height:80px}
 <!-- 설정 -->
 <div class="page" id="page-settings">
   <div class="settings-block">
-    <div class="settings-block-title">🔑 Discogs API 설정</div>
-    <div class="settings-desc">앨범 자동 검색·커버 이미지를 불러오려면 API 키가 필요합니다.<br><br>
-      1. <a class="settings-link" href="https://www.discogs.com/settings/developers" target="_blank">discogs.com/settings/developers</a> 접속<br>
-      2. "Generate new token" 클릭<br>3. Consumer Key / Secret 복사 후 입력</div>
-    <div class="form-group"><label class="form-label">Consumer Key</label><input class="form-input" id="discogsKey" placeholder="Consumer Key" autocomplete="off"></div>
-    <div class="form-group"><label class="form-label">Consumer Secret</label><input class="form-input" id="discogsSecret" placeholder="Consumer Secret" type="password"></div>
-    <button class="btn btn-primary" onclick="saveDiscogsKey()">저장</button>
+    <div class="settings-block-title">🎵 MusicBrainz <span class="badge">API 키 불필요</span></div>
+    <div class="settings-desc">앨범 검색, 커버 이미지, 바코드 스캔 모두 MusicBrainz + Cover Art Archive를 사용합니다.<br><br>별도 API 키 없이 바로 사용할 수 있어요. 요청 횟수 제한(초당 1회)이 있지만 개인 사용엔 충분합니다.</div>
+    <div style="background:var(--s2);border-radius:var(--rs);padding:12px;font-size:.78rem;color:var(--ts)">
+      💡 커버 이미지가 없는 앨범은 직접 촬영해서 추가할 수 있어요
+    </div>
   </div>
   <div class="settings-block">
     <div class="settings-block-title">📦 데이터 관리</div>
@@ -223,22 +219,20 @@ textarea.form-input{resize:vertical;min-height:80px}
     <label class="btn btn-secondary" style="margin-bottom:8px;cursor:pointer">📥 데이터 가져오기 (JSON)<input type="file" accept=".json" style="display:none" onchange="importData(this)"></label>
     <button class="btn btn-danger" onclick="clearData()">🗑 모든 데이터 삭제</button>
   </div>
-  <div class="settings-block">
-    <div class="settings-block-title">📱 홈 화면 설치 (PWA)</div>
-    <div class="settings-desc">Safari → 하단 공유(□↑) → "홈 화면에 추가" → 앱처럼 실행!</div>
-  </div>
-  <div style="text-align:center;margin-top:20px;font-size:.75rem;color:var(--td)">LP Collection v1.0 · Made with ❤️</div>
+
+  <div style="text-align:center;margin-top:20px;font-size:.75rem;color:var(--td)">LP Collection v2.0 · MusicBrainz 연동</div>
 </div>
 
 <!-- 앨범 추가/수정 -->
 <div class="page" id="page-add">
-  <div class="discogs-box">
-    <div class="discogs-label">🔍 Discogs 자동 검색</div>
-    <div class="discogs-row">
-      <input class="form-input" id="addDiscogsQuery" placeholder="아티스트 또는 앨범명..." type="search">
-      <button class="btn btn-primary btn-sm" onclick="doDiscogsSearch()">검색</button>
+  <div class="mb-box">
+    <div class="mb-label">🔍 앨범 자동 검색 <span class="badge">API 키 불필요</span></div>
+    <div class="mb-sublabel">MusicBrainz에서 앨범 정보와 커버 이미지를 자동으로 가져와요</div>
+    <div class="mb-row">
+      <input class="form-input" id="addMbQuery" placeholder="아티스트 또는 앨범명..." type="search">
+      <button class="btn btn-primary btn-sm" onclick="doMbSearch()">검색</button>
     </div>
-    <div id="addDiscogsResults"></div>
+    <div id="addMbResults"></div>
   </div>
   <div class="cover-upload" id="addCoverUpload" onclick="document.getElementById('addCoverFile').click()">
     <span class="cu-icon">🖼️</span><span class="cu-hint">커버 사진 추가</span>
@@ -252,20 +246,14 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="form-group"><label class="form-label">발매연도</label><input class="form-input" id="addYear" type="number" placeholder="1969"></div>
     <div class="form-group"><label class="form-label">보유 수량</label><input class="form-input" id="addQty" type="number" value="1" min="1"></div>
   </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">장르</label><input class="form-input" id="addGenre" placeholder="예) Rock"></div>
-    <div class="form-group"><label class="form-label">레이블</label><input class="form-input" id="addLabel" placeholder="예) Apple Records"></div>
-  </div>
-  <div class="form-group"><label class="form-label">바코드</label><input class="form-input" id="addBarcode" placeholder="바코드 번호"></div>
+
   <div class="form-section">구매 정보</div>
   <div class="form-row">
     <div class="form-group"><label class="form-label">구입가 (원)</label><input class="form-input" id="addBuyPrice" type="number" placeholder="0"></div>
     <div class="form-group"><label class="form-label">정가 (원)</label><input class="form-input" id="addListPrice" type="number" placeholder="0"></div>
   </div>
-  <div class="form-row">
-    <div class="form-group"><label class="form-label">구입처</label><input class="form-input" id="addStore" placeholder="예) 레코드샵 OO"></div>
-    <div class="form-group"><label class="form-label">구입일</label><input class="form-input" id="addDate" type="date"></div>
-  </div>
+  <div class="form-group"><label class="form-label">구입처</label><input class="form-input" id="addStore" placeholder="예) 레코드샵 OO"></div>
+  <div class="form-group"><label class="form-label">구입일</label><input class="form-input" id="addDate" type="date"></div>
   <div class="form-section">평가</div>
   <div class="form-group">
     <label class="form-label">별점</label>
@@ -278,7 +266,10 @@ textarea.form-input{resize:vertical;min-height:80px}
     </div>
   </div>
   <div class="form-group"><label class="form-label">메모 / 감상</label><textarea class="form-input" id="addMemo" placeholder="개인 감상이나 메모를 남겨보세요..."></textarea></div>
-  <input type="hidden" id="addDiscogsId">
+  <input type="hidden" id="addGenre">
+  <input type="hidden" id="addLabel">
+  <input type="hidden" id="addBarcode">
+  <input type="hidden" id="addMbId">
   <input type="hidden" id="addEditId">
   <div style="height:16px"></div>
   <button class="btn btn-primary" onclick="saveAlbum()">💾 저장</button>
@@ -301,9 +292,10 @@ textarea.form-input{resize:vertical;min-height:80px}
 
 <!-- 위시 추가 -->
 <div class="page" id="page-add-wish">
-  <div class="discogs-box">
-    <div class="discogs-label">🔍 Discogs 검색</div>
-    <div class="discogs-row">
+  <div class="mb-box">
+    <div class="mb-label">🔍 앨범 자동 검색 <span class="badge">API 키 불필요</span></div>
+    <div class="mb-sublabel">MusicBrainz에서 앨범 정보를 자동으로 가져와요</div>
+    <div class="mb-row">
       <input class="form-input" id="wishQuery" placeholder="아티스트 또는 앨범명..." type="search">
       <button class="btn btn-primary btn-sm" onclick="doWishSearch()">검색</button>
     </div>
@@ -321,7 +313,7 @@ textarea.form-input{resize:vertical;min-height:80px}
     <div class="form-group"><label class="form-label">장르</label><input class="form-input" id="wishGenre"></div>
   </div>
   <div class="form-group"><label class="form-label">메모</label><textarea class="form-input" id="wishMemo" placeholder="갖고 싶은 이유, 참고 가격 등..."></textarea></div>
-  <input type="hidden" id="wishDiscogsId">
+  <input type="hidden" id="wishMbId">
   <div style="height:16px"></div>
   <button class="btn btn-primary" onclick="saveWish()">💾 저장</button>
 </div>
@@ -329,7 +321,7 @@ textarea.form-input{resize:vertical;min-height:80px}
 <!-- Bottom Nav -->
 <nav class="bottom-nav" id="bottomNav">
   <button class="ni active" id="nav-collection" onclick="navTo('collection')"><span class="ni-icon">💿</span><span>컬렉션</span></button>
-  <button class="ni" id="nav-wishlist" onclick="navTo('wishlist')"><span class="ni-icon">🎯</span><span>위시</span></button>
+  <button class="ni" id="nav-wishlist" onclick="navTo('wishlist')"><span class="ni-icon">🌙</span><span>위시</span></button>
   <button class="ni" id="nav-scan" onclick="navTo('scan')"><span class="ni-icon">📷</span><span>스캔</span></button>
   <button class="ni" id="nav-dashboard" onclick="navTo('dashboard')"><span class="ni-icon">📊</span><span>통계</span></button>
   <button class="ni" id="nav-settings" onclick="navTo('settings')"><span class="ni-icon">⚙️</span><span>설정</span></button>
@@ -348,62 +340,110 @@ const DB=(()=>{
   return{albums:mk('albums'),wishlist:mk('wishlist')};
 })();
 
-// ── Discogs ─────────────────────────────────────
-const Discogs=(()=>{
-  const BASE='https://api.discogs.com',HDR={'User-Agent':'LPCollectionApp/1.0'};
-  const creds=()=>({key:localStorage.getItem('discogs_key')||'',secret:localStorage.getItem('discogs_secret')||''});
-  const auth=()=>{const{key,secret}=creds();return key?`&key=${key}&secret=${secret}`:''};
-  const api=url=>fetch(url,{headers:HDR}).then(r=>{if(!r.ok)throw new Error(r.status);return r.json()});
-  const search=q=>api(`${BASE}/database/search?q=${encodeURIComponent(q)}&type=release${auth()}&per_page=10`).then(d=>d.results||[]);
-  const searchBarcode=b=>api(`${BASE}/database/search?barcode=${encodeURIComponent(b)}${auth()}&per_page=5`).then(d=>d.results||[]);
-  const getStats=id=>{const a=auth();return api(`${BASE}/marketplace/stats/${id}${a?'?'+a.slice(1):''}`).catch(()=>null)};
-  const parse=item=>{const p=(item.title||'').split(' - ');return{discogsId:String(item.id),artist:p.length>1?p[0]:'',title:p.length>1?p.slice(1).join(' - '):item.title||'',year:item.year?String(item.year):'',genre:(item.genre||[]).join(', '),style:(item.style||[]).join(', '),label:(item.label||[]).join(', '),coverUrl:item.cover_image||'',thumb:item.thumb||item.cover_image||''}};
-  return{search,searchBarcode,getStats,parse};
+// ── MusicBrainz API ──────────────────────────────
+const MB=(()=>{
+  const BASE='https://musicbrainz.org/ws/2';
+  const CAA='https://coverartarchive.org/release';
+  const HDR={'User-Agent':'LPCollectionApp/2.0 (lp-collection-app)','Accept':'application/json'};
+
+  // 초당 1회 제한 대응용 딜레이
+  let lastCall=0;
+  async function rateLimit(){
+    const now=Date.now();
+    const wait=1100-(now-lastCall);
+    if(wait>0) await new Promise(r=>setTimeout(r,wait));
+    lastCall=Date.now();
+  }
+
+  async function api(url){
+    await rateLimit();
+    const r=await fetch(url,{headers:HDR});
+    if(!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+
+  async function search(q){
+    const encoded=encodeURIComponent(q);
+    const data=await api(`${BASE}/release?query=${encoded}&limit=10&fmt=json`);
+    return (data.releases||[]).map(parse);
+  }
+
+  async function searchByBarcode(barcode){
+    const data=await api(`${BASE}/release?query=barcode:${encodeURIComponent(barcode)}&limit=5&fmt=json`);
+    return (data.releases||[]).map(parse);
+  }
+
+  async function getCoverUrl(mbid){
+    try{
+      // Cover Art Archive — front 이미지 250px
+      const r=await fetch(`${CAA}/${mbid}/front-250`,{method:'HEAD'});
+      if(r.ok||r.redirected) return `${CAA}/${mbid}/front-250`;
+      return '';
+    }catch{return '';}
+  }
+
+  function parse(r){
+    const artist=(r['artist-credit']||[]).map(ac=>typeof ac==='string'?ac:(ac.artist?.name||'')).join('');
+    const label=(r['label-info']||[]).map(l=>l.label?.name||'').filter(Boolean).join(', ');
+    const genre=(r.genres||r.tags||[]).slice(0,3).map(g=>g.name||'').filter(Boolean).join(', ');
+    return{
+      mbid:r.id||'',
+      artist,
+      title:r.title||'',
+      year:(r.date||'').slice(0,4),
+      label,
+      genre,
+      country:r.country||'',
+      barcode:(r.barcode||''),
+    };
+  }
+
+  return{search,searchByBarcode,getCoverUrl,parse};
 })();
 
-// ── Utils ────────────────────────────────────────
+// ── Utils ─────────────────────────────────────────
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')}
 function showToast(msg,dur=2500){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._to);t._to=setTimeout(()=>t.classList.remove('show'),dur)}
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 function openModal(id){document.getElementById(id).classList.add('open')}
 function starsHtml(r){return[1,2,3,4,5].map(i=>`<span class="star ${i<=(r||0)?'on':'off'}">★</span>`).join('')}
-function imgOrPh(url){if(url)return`<img src="${esc(url)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.display='none'"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem">💿</span>`;return`<span style="font-size:2rem">💿</span>`}
+function imgOrPh(url){
+  if(url) return`<img src="${esc(url)}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover" loading="lazy" onerror="this.style.display='none'"><span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:2rem">💿</span>`;
+  return`<span style="font-size:2rem">💿</span>`;
+}
 
-// ── Navigation ───────────────────────────────────
-const MAIN_PAGES=['collection','wishlist','scan','dashboard','settings'];
+// ── Navigation ────────────────────────────────────
+const MAIN=['collection','wishlist','scan','dashboard','settings'];
 let navStack=['collection'],currentAlbumId=null,scannerInst=null;
 
 function navTo(page,opts={}){
-  if(navStack[navStack.length-1]==='scan'&&page!=='scan')stopScan();
+  if(navStack[navStack.length-1]==='scan'&&page!=='scan') stopScan();
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-'+page).classList.add('active');
-  const isMain=MAIN_PAGES.includes(page);
+  const isMain=MAIN.includes(page);
   document.getElementById('bottomNav').style.display=isMain?'flex':'none';
   document.getElementById('headerBack').style.display=isMain?'none':'flex';
-  const titles={collection:'💿 LP Collection',wishlist:'🎯 위시리스트',scan:'📷 바코드 스캔',dashboard:'📊 통계',settings:'⚙️ 설정',add:'앨범 추가',detail:'앨범 정보','add-wish':'위시 추가'};
+  const titles={collection:'💿 LP Collection',wishlist:'🌙 위시리스트',scan:'📷 바코드 스캔',dashboard:'📊 통계',settings:'⚙️ 설정',add:'앨범 추가',detail:'앨범 정보','add-wish':'위시 추가'};
   document.getElementById('headerTitle').textContent=opts.title||titles[page]||'';
   const rb=document.getElementById('headerRight');
   if(page==='detail'){rb.style.display='flex';rb.textContent='✏️';rb.onclick=()=>navTo('add',{editId:currentAlbumId});}
   else rb.style.display='none';
   document.querySelectorAll('.ni').forEach(n=>n.classList.remove('active'));
-  if(isMain)document.getElementById('nav-'+page)?.classList.add('active');
-  if(isMain)navStack=[page];else navStack.push(page);
-  const fab=document.getElementById('fab');
-  fab.style.display=['collection','wishlist'].includes(page)?'flex':'none';
-  if(page==='collection')loadCollection();
-  if(page==='wishlist')loadWishlist();
-  if(page==='dashboard')loadDashboard();
-  if(page==='settings')initSettings();
-  if(page==='scan')startScan();
-  if(page==='add')initAddForm(opts);
-  if(page==='detail')loadDetail(opts.id||currentAlbumId);
-  if(page==='add-wish')initWishForm(opts);
+  if(isMain) document.getElementById('nav-'+page)?.classList.add('active');
+  if(isMain) navStack=[page]; else navStack.push(page);
+  document.getElementById('fab').style.display=['collection','wishlist'].includes(page)?'flex':'none';
+  if(page==='collection') loadCollection();
+  if(page==='wishlist') loadWishlist();
+  if(page==='dashboard') loadDashboard();
+  if(page==='scan') startScan();
+  if(page==='add') initAddForm(opts);
+  if(page==='detail') loadDetail(opts.id||currentAlbumId);
+  if(page==='add-wish') initWishForm(opts);
 }
-
 function goBack(){navStack.pop();navTo(navStack[navStack.length-1]||'collection')}
 function onFab(){const cur=navStack[navStack.length-1];navTo(cur==='wishlist'?'add-wish':'add')}
 
-// ── Collection ───────────────────────────────────
+// ── Collection ────────────────────────────────────
 let allAlbums=[],activeGenre='all';
 async function loadCollection(){allAlbums=await DB.albums.getAll();renderGenreChips();renderCollection();}
 function renderGenreChips(){
@@ -427,7 +467,7 @@ function renderCollection(){
 }
 function openDetail(id){currentAlbumId=id;navTo('detail',{id});}
 
-// ── Detail ───────────────────────────────────────
+// ── Detail ────────────────────────────────────────
 let currentAlbum=null;
 async function loadDetail(id){
   currentAlbum=await DB.albums.get(id);
@@ -443,77 +483,200 @@ async function loadDetail(id){
     ${(a.purchasePrice||a.listPrice||a.purchaseStore||a.purchaseDate)?`<div class="info-card">${irow('구입가',a.purchasePrice?a.purchasePrice.toLocaleString()+'원':null)}${irow('정가',a.listPrice?a.listPrice.toLocaleString()+'원':null)}${irow('구입처',a.purchaseStore)}${irow('구입일',a.purchaseDate)}${gain!==null?`<div class="info-row"><span class="info-key">정가 대비</span><span class="info-val">${gainHtml}</span></div>`:''}</div>`:''}
     <div style="margin-top:12px;background:var(--s);border-radius:var(--r);padding:14px 16px"><div style="font-size:.78rem;color:var(--ts);margin-bottom:8px">별점</div><div style="font-size:1.6rem">${a.rating?starsHtml(a.rating):'<span style="color:var(--td)">미평가</span>'}</div></div>
     ${a.memo?`<div class="memo-box" style="margin-top:12px"><div class="memo-label">메모</div><div class="memo-text">${esc(a.memo)}</div></div>`:''}
-    <div style="margin-top:16px">${a.discogsId?`<button class="btn btn-outline" style="margin-bottom:8px" id="statsBtn" onclick="fetchStats()">🌐 Discogs 현재 시세 조회</button>`:''}</div>
-    <div id="statsBox"></div>
-    <div class="action-row" style="margin-top:8px">
-      <button class="btn btn-secondary" onclick="moveDetailToWish()">🎯 위시로 이동</button>
+    <div class="action-row" style="margin-top:12px">
+      <button class="btn btn-secondary" onclick="moveDetailToWish()">🌙 위시로 이동</button>
       <button class="btn btn-danger" onclick="openModal('delModal')">🗑 삭제</button>
     </div><div style="height:8px"></div>`;
 }
 function irow(k,v){if(!v&&v!==0)return'';return`<div class="info-row"><span class="info-key">${k}</span><span class="info-val">${esc(String(v))}</span></div>`}
-async function fetchStats(){
-  const btn=document.getElementById('statsBtn');if(!btn)return;
-  btn.innerHTML='<span class="spinner"></span> 조회 중...';btn.disabled=true;
-  try{const stats=await Discogs.getStats(currentAlbum.discogsId);if(stats&&stats.lowest_price){const lp=stats.lowest_price;document.getElementById('statsBox').innerHTML=`<div class="price-row"><div class="price-box"><div class="price-box-label">최저가</div><div class="price-box-val gold">${lp.value?.toLocaleString()||'-'} ${lp.currency||'USD'}</div></div><div class="price-box"><div class="price-box-label">중간가</div><div class="price-box-val">${stats.median_price?.value?.toLocaleString()||'-'}</div></div><div class="price-box"><div class="price-box-label">판매 중</div><div class="price-box-val">${stats.num_for_sale||0}개</div></div></div>`;btn.style.display='none';}else{showToast('시세 정보 없음');btn.innerHTML='🌐 Discogs 현재 시세 조회';btn.disabled=false;}}catch{showToast('조회 실패');btn.innerHTML='🌐 Discogs 현재 시세 조회';btn.disabled=false;}
-}
-async function moveDetailToWish(){const a=currentAlbum;await DB.wishlist.add({artist:a.artist,title:a.title,year:a.year,genre:a.genre,coverUrl:a.coverUrl,discogsId:a.discogsId,memo:''});await DB.albums.delete(a.id);showToast('위시리스트로 이동했어요');setTimeout(()=>navTo('wishlist'),700);}
+async function moveDetailToWish(){const a=currentAlbum;await DB.wishlist.add({artist:a.artist,title:a.title,year:a.year,genre:a.genre,coverUrl:a.coverUrl,mbid:a.mbid,memo:''});await DB.albums.delete(a.id);showToast('위시리스트로 이동했어요');setTimeout(()=>navTo('wishlist'),700);}
 async function confirmDelete(){await DB.albums.delete(currentAlbum.id);closeModal('delModal');showToast('삭제되었어요');setTimeout(()=>navTo('collection'),600);}
 
-// ── Add/Edit ─────────────────────────────────────
+// ── MusicBrainz 검색 공통 ────────────────────────
+async function mbSearchAndRender(query, resultsElId, applyFn, btnEl){
+  btnEl.innerHTML='<span class="spinner"></span>'; btnEl.disabled=true;
+  try{
+    const results=await MB.search(query);
+    const el=document.getElementById(resultsElId);
+    if(!results.length){el.innerHTML='<p style="font-size:.8rem;color:var(--td);margin-top:8px">검색 결과 없음. 다른 키워드로 시도해보세요.</p>';return;}
+    el.innerHTML=`<div class="result-list">${results.map(p=>`
+      <div class="result-item" onclick='${applyFn}(${JSON.stringify(p).replace(/'/g,"\\'")})'}>
+        <div class="result-thumb" style="background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1.4rem">💿</div>
+        <div class="result-info">
+          <div class="result-title">${esc(p.artist)} — ${esc(p.title)}</div>
+          <div class="result-sub">${esc(p.year||'연도 미상')}${p.label?' · '+esc(p.label):''}${p.country?' · '+esc(p.country):''}</div>
+        </div>
+      </div>`).join('')}</div>`;
+    // 비동기로 커버 이미지 로드
+    results.forEach((p,i)=>{
+      if(!p.mbid) return;
+      MB.getCoverUrl(p.mbid).then(url=>{
+        if(!url) return;
+        const thumbs=document.getElementById(resultsElId).querySelectorAll('.result-thumb');
+        if(thumbs[i]){thumbs[i].innerHTML=`<img src="${url}" style="width:100%;height:100%;object-fit:cover;border-radius:6px" onerror="this.parentElement.innerHTML='💿'">`;}
+      });
+    });
+  }catch(e){showToast('검색 실패. 잠시 후 다시 시도해주세요.');}
+  btnEl.innerHTML='검색'; btnEl.disabled=false;
+}
+
+async function applyMbData(p, artistId, titleId, yearId, genreId, labelId, barcodeId, coverUploadId, coverUrlId, mbIdId){
+  if(typeof p==='string') p=JSON.parse(p);
+  document.getElementById(artistId).value=p.artist||'';
+  document.getElementById(titleId).value=p.title||'';
+  document.getElementById(yearId).value=p.year||'';
+  document.getElementById(genreId).value=p.genre||'';
+  document.getElementById(labelId).value=p.label||'';
+  if(barcodeId && p.barcode) document.getElementById(barcodeId).value=p.barcode;
+  document.getElementById(mbIdId).value=p.mbid||'';
+  // 커버 이미지 로드
+  if(p.mbid){
+    showToast('커버 이미지 불러오는 중...');
+    const url=await MB.getCoverUrl(p.mbid);
+    if(url) setCover(coverUploadId, coverUrlId, url);
+    else showToast('커버 이미지 없음 — 직접 추가해주세요');
+  }
+  showToast('정보가 자동 입력되었어요 ✓');
+}
+
+// ── Add/Edit Album ────────────────────────────────
 let addRating=0;
 async function initAddForm(opts={}){
   addRating=0;
   document.getElementById('headerTitle').textContent=opts.editId?'앨범 수정':'앨범 추가';
-  ['addArtist','addTitle','addYear','addGenre','addLabel','addBarcode','addBuyPrice','addListPrice','addStore','addDate','addMemo','addDiscogsId'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('addDiscogsResults').innerHTML='';
+  ['addArtist','addTitle','addYear','addGenre','addLabel','addBarcode','addBuyPrice','addListPrice','addStore','addDate','addMemo','addMbId'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('addMbResults').innerHTML='';
   document.getElementById('addQty').value='1';
   document.getElementById('addEditId').value='';
   document.getElementById('addCoverUrl').value='';
-  resetCover('addCoverUpload');setAddStar(0);
+  resetCover('addCoverUpload'); setAddStar(0);
   if(opts.editId){
     document.getElementById('addEditId').value=opts.editId;
     const a=await DB.albums.get(opts.editId);
-    if(a){document.getElementById('addArtist').value=a.artist||'';document.getElementById('addTitle').value=a.title||'';document.getElementById('addYear').value=a.year||'';document.getElementById('addQty').value=a.quantity||1;document.getElementById('addGenre').value=a.genre||'';document.getElementById('addLabel').value=a.label||'';document.getElementById('addBarcode').value=a.barcode||'';document.getElementById('addBuyPrice').value=a.purchasePrice||'';document.getElementById('addListPrice').value=a.listPrice||'';document.getElementById('addStore').value=a.purchaseStore||'';document.getElementById('addDate').value=a.purchaseDate||'';document.getElementById('addMemo').value=a.memo||'';document.getElementById('addDiscogsId').value=a.discogsId||'';if(a.coverUrl)setCover('addCoverUpload','addCoverUrl',a.coverUrl);if(a.rating)setAddStar(a.rating);}
-  }else if(opts.barcode){document.getElementById('addBarcode').value=opts.barcode;document.getElementById('addDiscogsQuery').value=opts.barcode;doDiscogsSearch();}
+    if(a){
+      ['addArtist','addTitle','addYear','addGenre','addLabel','addBarcode','addMemo'].forEach(id=>{
+        const key=id.replace('add','').charAt(0).toLowerCase()+id.replace('add','').slice(1);
+        const map={addArtist:'artist',addTitle:'title',addYear:'year',addGenre:'genre',addLabel:'label',addBarcode:'barcode',addMemo:'memo'};
+        document.getElementById(id).value=a[map[id]]||'';
+      });
+      document.getElementById('addQty').value=a.quantity||1;
+      document.getElementById('addBuyPrice').value=a.purchasePrice||'';
+      document.getElementById('addListPrice').value=a.listPrice||'';
+      document.getElementById('addStore').value=a.purchaseStore||'';
+      document.getElementById('addDate').value=a.purchaseDate||'';
+      document.getElementById('addMbId').value=a.mbid||'';
+      if(a.coverUrl) setCover('addCoverUpload','addCoverUrl',a.coverUrl);
+      if(a.rating) setAddStar(a.rating);
+    }
+  }else if(opts.barcode){
+    document.getElementById('addBarcode').value=opts.barcode;
+    document.getElementById('addMbQuery').value=opts.barcode;
+    // 바코드로 MB 검색
+    const btn=document.querySelector('#page-add .mb-box .btn');
+    btn.innerHTML='<span class="spinner"></span>'; btn.disabled=true;
+    try{
+      const results=await MB.searchByBarcode(opts.barcode);
+      if(results.length){
+        // 첫 번째 결과 자동 적용
+        const p=results[0];
+        await applyMbData(p,'addArtist','addTitle','addYear','addGenre','addLabel','addBarcode','addCoverUpload','addCoverUrl','addMbId');
+      }else{
+        showToast('바코드로 앨범을 찾지 못했어요. 직접 검색해주세요.');
+      }
+    }catch{showToast('검색 실패');}
+    btn.innerHTML='검색'; btn.disabled=false;
+  }
 }
+
+async function doMbSearch(){
+  const q=document.getElementById('addMbQuery').value.trim(); if(!q) return;
+  const btn=document.querySelector('#page-add .mb-box .btn');
+  await mbSearchAndRender(q,'addMbResults','applyAddDiscogs',btn);
+}
+
+async function applyAddDiscogs(p){
+  await applyMbData(p,'addArtist','addTitle','addYear','addGenre','addLabel','addBarcode','addCoverUpload','addCoverUrl','addMbId');
+  document.getElementById('addMbResults').innerHTML='';
+  document.getElementById('addMbQuery').value='';
+}
+
 function resetCover(wid){const w=document.getElementById(wid);const img=w.querySelector('img');if(img)img.remove();w.querySelector('.cu-icon').style.display='';w.querySelector('.cu-hint').style.display='';}
-function setCover(wid,urlId,url){document.getElementById(urlId).value=url;const w=document.getElementById(wid);const old=w.querySelector('img');if(old)old.remove();const img=document.createElement('img');img.src=url;img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';w.style.position='relative';w.insertBefore(img,w.firstChild);w.querySelector('.cu-icon').style.display='none';w.querySelector('.cu-hint').style.display='none';}
-function setAddStar(v){addRating=v;document.querySelectorAll('#addStarRating .star').forEach((s,i)=>{s.classList.toggle('on',i<v);s.classList.toggle('off',i>=v);});}
-async function doDiscogsSearch(){
-  const q=document.getElementById('addDiscogsQuery').value.trim();if(!q)return;
-  const btn=document.querySelector('#page-add .discogs-box .btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;
-  try{const results=await Discogs.search(q);const el=document.getElementById('addDiscogsResults');el.innerHTML=results.length?`<div class="result-list">${results.slice(0,8).map(r=>{const p=Discogs.parse(r);return`<div class="result-item" onclick='applyDiscogs(${JSON.stringify(p).replace(/'/g,"\\'")})'><img class="result-thumb" src="${esc(p.thumb||'')}" onerror="this.src=''"><div class="result-info"><div class="result-title">${esc(p.artist)} — ${esc(p.title)}</div><div class="result-sub">${esc(p.year)} · ${esc(p.label||p.genre||'')}</div></div></div>`;}).join('')}</div>`:'<p style="font-size:.8rem;color:var(--td);margin-top:8px">결과 없음</p>';}catch{showToast('검색 실패: API 키를 확인해주세요');}
-  btn.innerHTML='검색';btn.disabled=false;
+function setCover(wid,urlId,url){
+  document.getElementById(urlId).value=url;
+  const w=document.getElementById(wid);
+  const old=w.querySelector('img');if(old)old.remove();
+  const img=document.createElement('img');
+  img.src=url;img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover';
+  w.style.position='relative';w.insertBefore(img,w.firstChild);
+  w.querySelector('.cu-icon').style.display='none';w.querySelector('.cu-hint').style.display='none';
 }
-function applyDiscogs(p){if(typeof p==='string')p=JSON.parse(p);document.getElementById('addArtist').value=p.artist||'';document.getElementById('addTitle').value=p.title||'';document.getElementById('addYear').value=p.year||'';document.getElementById('addGenre').value=p.style||p.genre||'';document.getElementById('addLabel').value=p.label||'';document.getElementById('addDiscogsId').value=p.discogsId||'';if(p.coverUrl)setCover('addCoverUpload','addCoverUrl',p.coverUrl);document.getElementById('addDiscogsResults').innerHTML='';document.getElementById('addDiscogsQuery').value='';showToast('정보가 자동 입력되었어요 ✓');}
+function setAddStar(v){addRating=v;document.querySelectorAll('#addStarRating .star').forEach((s,i)=>{s.classList.toggle('on',i<v);s.classList.toggle('off',i>=v);});}
 function handleAddCover(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>setCover('addCoverUpload','addCoverUrl',e.target.result);r.readAsDataURL(f);}
+
 async function saveAlbum(){
   const artist=document.getElementById('addArtist').value.trim();
   const title=document.getElementById('addTitle').value.trim();
   if(!artist||!title){showToast('아티스트와 앨범명을 입력해주세요');return;}
-  const item={artist,title,year:document.getElementById('addYear').value||'',quantity:Number(document.getElementById('addQty').value)||1,genre:document.getElementById('addGenre').value.trim(),label:document.getElementById('addLabel').value.trim(),barcode:document.getElementById('addBarcode').value.trim(),coverUrl:document.getElementById('addCoverUrl').value,purchasePrice:Number(document.getElementById('addBuyPrice').value)||0,listPrice:Number(document.getElementById('addListPrice').value)||0,purchaseStore:document.getElementById('addStore').value.trim(),purchaseDate:document.getElementById('addDate').value,rating:addRating,memo:document.getElementById('addMemo').value.trim(),discogsId:document.getElementById('addDiscogsId').value};
+  const item={
+    artist,title,
+    year:document.getElementById('addYear').value||'',
+    quantity:Number(document.getElementById('addQty').value)||1,
+    genre:document.getElementById('addGenre').value.trim(),
+    label:document.getElementById('addLabel').value.trim(),
+    barcode:document.getElementById('addBarcode').value.trim(),
+    coverUrl:document.getElementById('addCoverUrl').value,
+    purchasePrice:Number(document.getElementById('addBuyPrice').value)||0,
+    listPrice:Number(document.getElementById('addListPrice').value)||0,
+    purchaseStore:document.getElementById('addStore').value.trim(),
+    purchaseDate:document.getElementById('addDate').value,
+    rating:addRating,
+    memo:document.getElementById('addMemo').value.trim(),
+    mbid:document.getElementById('addMbId').value,
+  };
   const editId=document.getElementById('addEditId').value;
-  if(editId){item.id=Number(editId);await DB.albums.put(item);showToast('수정되었어요 ✓');}else{await DB.albums.add(item);showToast('추가되었어요 ✓');}
+  if(editId){item.id=Number(editId);await DB.albums.put(item);showToast('수정되었어요 ✓');}
+  else{await DB.albums.add(item);showToast('추가되었어요 ✓');}
   setTimeout(()=>navTo('collection'),700);
 }
 
-// ── Wishlist ─────────────────────────────────────
+// ── Wishlist ──────────────────────────────────────
 async function loadWishlist(){
   const list=await DB.wishlist.getAll();
   const el=document.getElementById('wishContent');
-  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🎯</div><div class="empty-text">위시리스트가 비어있어요</div><div class="empty-sub">갖고 싶은 LP를 추가해보세요</div></div>`;return;}
-  el.innerHTML=`<div class="wish-list">${list.map(w=>`<div class="wish-item"><div class="wish-thumb">${imgOrPh(w.coverUrl)}</div><div class="wish-body"><div class="wish-title">${esc(w.title||'제목 없음')}</div><div class="wish-artist">${esc(w.artist||'')}</div><div class="wish-meta">${esc(w.year||'')}${w.genre?' · '+esc(w.genre):''}</div>${w.memo?`<div class="wish-meta">${esc(w.memo)}</div>`:''}</div><div class="wish-actions"><button class="wish-btn" onclick="wishToCollection(${w.id})">💿</button><button class="wish-btn" onclick="deleteWish(${w.id},this)">🗑</button></div></div>`).join('')}</div>`;
+  if(!list.length){el.innerHTML=`<div class="empty"><div class="empty-icon">🌙</div><div class="empty-text">위시리스트가 비어있어요</div><div class="empty-sub">갖고 싶은 LP를 추가해보세요</div></div>`;return;}
+  el.innerHTML=`<div class="wish-list">${list.map(w=>`<div class="wish-item"><div class="wish-thumb">${imgOrPh(w.coverUrl)}</div><div class="wish-body"><div class="wish-title">${esc(w.title||'제목 없음')}</div><div class="wish-artist">${esc(w.artist||'')}</div><div class="wish-meta">${esc(w.year||'')}${w.genre?' · '+esc(w.genre):''}</div>${w.memo?`<div class="wish-meta">${esc(w.memo)}</div>`:''}</div><div class="wish-actions"><button class="wish-btn" title="컬렉션으로" onclick="wishToCollection(${w.id})">💿</button><button class="wish-btn" title="삭제" onclick="deleteWish(${w.id},this)">🗑</button></div></div>`).join('')}</div>`;
 }
-async function wishToCollection(id){const item=await DB.wishlist.get(id);if(!item)return;await DB.albums.add({artist:item.artist,title:item.title,year:item.year,genre:item.genre,coverUrl:item.coverUrl,discogsId:item.discogsId,quantity:1,memo:item.memo||''});await DB.wishlist.delete(id);showToast('컬렉션으로 이동했어요 ✓');loadWishlist();}
+async function wishToCollection(id){const item=await DB.wishlist.get(id);if(!item)return;await DB.albums.add({artist:item.artist,title:item.title,year:item.year,genre:item.genre,coverUrl:item.coverUrl,mbid:item.mbid,quantity:1,memo:item.memo||''});await DB.wishlist.delete(id);showToast('컬렉션으로 이동했어요 ✓');loadWishlist();}
 async function deleteWish(id,btn){if(!confirm('삭제할까요?'))return;await DB.wishlist.delete(id);btn.closest('.wish-item').remove();showToast('삭제했어요');}
 
-function initWishForm(opts={}){['wishArtist','wishTitle','wishYear','wishGenre','wishMemo','wishDiscogsId'].forEach(id=>document.getElementById(id).value='');document.getElementById('wishCoverUrl').value='';document.getElementById('wishSearchResults').innerHTML='';resetCover('wishCoverUpload');if(opts.barcode){document.getElementById('wishQuery').value=opts.barcode;doWishSearch();}}
-async function doWishSearch(){const q=document.getElementById('wishQuery').value.trim();if(!q)return;const btn=document.querySelector('#page-add-wish .discogs-box .btn');btn.innerHTML='<span class="spinner"></span>';btn.disabled=true;try{const results=await Discogs.search(q);const el=document.getElementById('wishSearchResults');el.innerHTML=results.length?`<div class="result-list">${results.slice(0,8).map(r=>{const p=Discogs.parse(r);return`<div class="result-item" onclick='applyWish(${JSON.stringify(p).replace(/'/g,"\\'")})'><img class="result-thumb" src="${esc(p.thumb||'')}" onerror="this.src=''"><div class="result-info"><div class="result-title">${esc(p.artist)} — ${esc(p.title)}</div><div class="result-sub">${esc(p.year)}</div></div></div>`;}).join('')}</div>`:'<p style="font-size:.8rem;color:var(--td);margin-top:8px">결과 없음</p>';}catch{showToast('검색 실패');}btn.innerHTML='검색';btn.disabled=false;}
-function applyWish(p){if(typeof p==='string')p=JSON.parse(p);document.getElementById('wishArtist').value=p.artist;document.getElementById('wishTitle').value=p.title;document.getElementById('wishYear').value=p.year;document.getElementById('wishGenre').value=p.style||p.genre;document.getElementById('wishDiscogsId').value=p.discogsId;if(p.coverUrl)setCover('wishCoverUpload','wishCoverUrl',p.coverUrl);document.getElementById('wishSearchResults').innerHTML='';showToast('입력 완료 ✓');}
+function initWishForm(opts={}){
+  ['wishArtist','wishTitle','wishYear','wishGenre','wishMemo','wishMbId'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('wishCoverUrl').value='';
+  document.getElementById('wishSearchResults').innerHTML='';
+  resetCover('wishCoverUpload');
+  if(opts.barcode){document.getElementById('wishQuery').value=opts.barcode;doWishSearch();}
+}
+async function doWishSearch(){
+  const q=document.getElementById('wishQuery').value.trim();if(!q)return;
+  const btn=document.querySelector('#page-add-wish .mb-box .btn');
+  await mbSearchAndRender(q,'wishSearchResults','applyWishResult',btn);
+}
+async function applyWishResult(p){
+  await applyMbData(p,'wishArtist','wishTitle','wishYear','wishGenre',null,null,'wishCoverUpload','wishCoverUrl','wishMbId');
+  document.getElementById('wishSearchResults').innerHTML='';
+  document.getElementById('wishQuery').value='';
+}
 function handleWishCover(input){const f=input.files[0];if(!f)return;const r=new FileReader();r.onload=e=>setCover('wishCoverUpload','wishCoverUrl',e.target.result);r.readAsDataURL(f);}
-async function saveWish(){const artist=document.getElementById('wishArtist').value.trim();const title=document.getElementById('wishTitle').value.trim();if(!artist||!title){showToast('아티스트와 앨범명을 입력하세요');return;}await DB.wishlist.add({artist,title,year:document.getElementById('wishYear').value,genre:document.getElementById('wishGenre').value.trim(),coverUrl:document.getElementById('wishCoverUrl').value,memo:document.getElementById('wishMemo').value.trim(),discogsId:document.getElementById('wishDiscogsId').value});showToast('위시리스트에 추가했어요 ✓');setTimeout(()=>navTo('wishlist'),700);}
+async function saveWish(){
+  const artist=document.getElementById('wishArtist').value.trim();
+  const title=document.getElementById('wishTitle').value.trim();
+  if(!artist||!title){showToast('아티스트와 앨범명을 입력하세요');return;}
+  await DB.wishlist.add({artist,title,year:document.getElementById('wishYear').value,genre:document.getElementById('wishGenre').value.trim(),coverUrl:document.getElementById('wishCoverUrl').value,memo:document.getElementById('wishMemo').value.trim(),mbid:document.getElementById('wishMbId').value});
+  showToast('위시리스트에 추가했어요 ✓');
+  setTimeout(()=>navTo('wishlist'),700);
+}
 
-// ── Dashboard ────────────────────────────────────
+// ── Dashboard ─────────────────────────────────────
 let gChart=null,yChart=null;
 async function loadDashboard(){
   Chart.defaults.color='#999';Chart.defaults.borderColor='#2a2a2a';
@@ -533,37 +696,72 @@ async function loadDashboard(){
   document.getElementById('topArtists').innerHTML=sorted.length?sorted.map(([name,cnt],i)=>`<div class="top-item"><span class="top-rank">${i+1}</span><span class="top-name">${esc(name)}</span><span class="top-count">${cnt}장</span></div>`).join(''):'<p style="color:var(--td);font-size:.85rem;padding:10px 0">데이터 없음</p>';
 }
 
-// ── Scan ─────────────────────────────────────────
-let lastBarcode='';
+// ── Scan ──────────────────────────────────────────
+let lastBarcode='', lastScanResult=null;
 function startScan(){
-  lastBarcode='';document.getElementById('scanResult').style.display='none';document.getElementById('scanStatus').textContent='카메라를 시작하는 중...';
-  if(scannerInst){scannerInst.stop().catch(()=>{}).then(()=>{scannerInst=null;_startScan();});}else _startScan();
+  lastBarcode=''; lastScanResult=null;
+  document.getElementById('scanResult').style.display='none';
+  document.getElementById('scanStatus').textContent='카메라를 시작하는 중...';
+  if(scannerInst){scannerInst.stop().catch(()=>{}).then(()=>{scannerInst=null;_startScan();});}
+  else _startScan();
 }
 function _startScan(){
   scannerInst=new Html5Qrcode('reader');
-  scannerInst.start({facingMode:'environment'},{fps:10,qrbox:{width:240,height:100},formatsToSupport:[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E]},onBarcodeScanned,()=>{})
-    .then(()=>document.getElementById('scanStatus').textContent='바코드를 화면 가운데에 맞춰주세요')
-    .catch(err=>document.getElementById('scanStatus').innerHTML='카메라 권한이 필요합니다<br><small>'+err+'</small>');
+  scannerInst.start(
+    {facingMode:'environment'},
+    {fps:10,qrbox:{width:240,height:100},formatsToSupport:[Html5QrcodeSupportedFormats.EAN_13,Html5QrcodeSupportedFormats.EAN_8,Html5QrcodeSupportedFormats.UPC_A,Html5QrcodeSupportedFormats.UPC_E]},
+    onBarcodeScanned,()=>{}
+  ).then(()=>document.getElementById('scanStatus').textContent='바코드를 화면 가운데에 맞춰주세요')
+   .catch(err=>document.getElementById('scanStatus').innerHTML='카메라 권한이 필요합니다<br><small style="color:var(--td)">'+err+'</small>');
 }
 function stopScan(){if(scannerInst){scannerInst.stop().catch(()=>{});scannerInst=null;}}
+
 async function onBarcodeScanned(barcode){
-  if(barcode===lastBarcode)return;lastBarcode=barcode;stopScan();
-  document.getElementById('barcodeVal').textContent=barcode;document.getElementById('scanResult').style.display='block';document.getElementById('scanStatus').textContent='인식 완료!';
-  const preview=document.getElementById('discogsPreview');preview.innerHTML='<span class="spinner"></span>';
-  try{const results=await Discogs.searchBarcode(barcode);if(results.length){const p=Discogs.parse(results[0]);preview.innerHTML=`<div class="result-item" style="background:var(--s2)"><img class="result-thumb" src="${esc(p.thumb||'')}" onerror="this.src=''"><div class="result-info"><div class="result-title">${esc(p.artist)} — ${esc(p.title)}</div><div class="result-sub">${esc(p.year)} · ${esc(p.label||'')}</div></div></div>`;}else preview.innerHTML='<p style="font-size:.8rem;color:var(--td)">앨범 정보를 찾지 못했어요.</p>';}catch{preview.innerHTML='<p style="font-size:.8rem;color:var(--td)">정보 검색 실패.</p>';}
+  if(barcode===lastBarcode) return;
+  lastBarcode=barcode;
+  stopScan();
+  document.getElementById('barcodeVal').textContent=barcode;
+  document.getElementById('scanResult').style.display='block';
+  document.getElementById('scanStatus').textContent='인식 완료! MusicBrainz에서 검색 중...';
+  const preview=document.getElementById('scanPreview');
+  preview.innerHTML='<div style="display:flex;align-items:center;gap:8px;color:var(--ts);font-size:.85rem"><span class="spinner"></span> 앨범 정보 검색 중...</div>';
+  try{
+    const results=await MB.searchByBarcode(barcode);
+    if(results.length){
+      lastScanResult=results[0];
+      // 커버 로드
+      let coverUrl='';
+      if(lastScanResult.mbid) coverUrl=await MB.getCoverUrl(lastScanResult.mbid);
+      const thumbHtml=coverUrl
+        ?`<img style="width:48px;height:48px;border-radius:6px;object-fit:cover" src="${coverUrl}" onerror="this.style.display='none'">`
+        :`<div style="width:48px;height:48px;border-radius:6px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1.4rem">💿</div>`;
+      preview.innerHTML=`<div class="result-item" style="background:var(--s2)">
+        ${thumbHtml}
+        <div class="result-info">
+          <div class="result-title">${esc(lastScanResult.artist)} — ${esc(lastScanResult.title)}</div>
+          <div class="result-sub">${esc(lastScanResult.year||'연도 미상')}${lastScanResult.label?' · '+esc(lastScanResult.label):''}</div>
+        </div>
+      </div>`;
+      document.getElementById('scanStatus').textContent='앨범 정보를 찾았어요!';
+    }else{
+      preview.innerHTML='<p style="font-size:.8rem;color:var(--td)">앨범 정보를 찾지 못했어요. 추가 후 직접 검색해보세요.</p>';
+      document.getElementById('scanStatus').textContent='바코드 인식 완료';
+    }
+  }catch{
+    preview.innerHTML='<p style="font-size:.8rem;color:var(--td)">정보 검색 실패. 앱 속도 제한일 수 있어요.</p>';
+    document.getElementById('scanStatus').textContent='바코드 인식 완료';
+  }
 }
 function scanGoAdd(){navTo('add',{barcode:lastBarcode});}
 function scanGoWish(){navTo('add-wish',{barcode:lastBarcode});}
 function restartScan(){startScan();}
 
 // ── Settings ──────────────────────────────────────
-function initSettings(){document.getElementById('discogsKey').value=localStorage.getItem('discogs_key')||'';document.getElementById('discogsSecret').value=localStorage.getItem('discogs_secret')||'';}
-function saveDiscogsKey(){localStorage.setItem('discogs_key',document.getElementById('discogsKey').value.trim());localStorage.setItem('discogs_secret',document.getElementById('discogsSecret').value.trim());showToast('저장되었어요 ✓');}
 async function exportData(){const albums=await DB.albums.getAll(),wishlist=await DB.wishlist.getAll();const blob=new Blob([JSON.stringify({albums,wishlist,exportedAt:new Date().toISOString()},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`lp-collection-${new Date().toISOString().slice(0,10)}.json`;a.click();}
 async function importData(input){const file=input.files[0];if(!file)return;try{const data=JSON.parse(await file.text());if(!confirm(`앨범 ${data.albums?.length||0}개, 위시 ${data.wishlist?.length||0}개를 가져올까요?`))return;for(const a of(data.albums||[])){delete a.id;await DB.albums.add(a);}for(const w of(data.wishlist||[])){delete w.id;await DB.wishlist.add(w);}showToast('가져오기 완료 ✓');}catch{showToast('파일 형식이 올바르지 않아요');}}
 async function clearData(){if(!confirm('모든 LP 데이터가 삭제됩니다. 정말요?'))return;if(!confirm('⚠️ 되돌릴 수 없습니다. 정말요?'))return;const albums=await DB.albums.getAll(),wishes=await DB.wishlist.getAll();for(const a of albums)await DB.albums.delete(a.id);for(const w of wishes)await DB.wishlist.delete(w.id);showToast('모든 데이터가 삭제되었어요');}
 
-// ── Init ──────────────────────────────────────────
+// Init
 loadCollection();
 </script>
 </body>
