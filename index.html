@@ -7,98 +7,64 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: #f5f5f7; color: #1d1d1f; font-family: -apple-system, 'Segoe UI', sans-serif; }
-
-header {
-  background: rgba(255,255,255,0.9);
-  backdrop-filter: blur(10px);
-  padding: 16px 28px;
-  display: flex; align-items: center; justify-content: space-between;
-  border-bottom: 1px solid #e5e5ea;
-  position: sticky; top: 0; z-index: 50;
-}
+header { background: #fff; padding: 16px 28px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e5e5ea; position: sticky; top: 0; z-index: 50; }
 header h1 { font-size: 1.3rem; font-weight: 700; }
 header h1 span { color: #ff3b5c; }
 .hstat { display: flex; gap: 8px; }
 .pill { background: #f5f5f7; border: 1px solid #e5e5ea; border-radius: 20px; padding: 4px 12px; font-size: 0.82rem; color: #6e6e73; }
 .pill b { color: #1d1d1f; }
-
 nav { display: flex; background: #fff; border-bottom: 1px solid #e5e5ea; }
 nav button { flex: 1; padding: 13px; background: none; border: none; border-bottom: 2px solid transparent; color: #6e6e73; cursor: pointer; font-size: 0.88rem; font-weight: 500; }
-nav button.on { color: #ff3b5c; border-bottom-color: #ff3b5c; }
-nav button:hover:not(.on) { background: #f5f5f7; }
-
+nav button.active { color: #ff3b5c; border-bottom-color: #ff3b5c; }
 .tab { display: none; }
-.tab.on { display: block; }
+.tab.active { display: block; }
 .wrap { max-width: 1060px; margin: 0 auto; padding: 24px 16px; }
-
-.bar { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
-.bar input, .bar select {
-  flex: 1; min-width: 140px; padding: 10px 13px; border: 1px solid #e5e5ea;
-  border-radius: 10px; font-size: 0.88rem; background: #fff; color: #1d1d1f;
-}
-.bar input:focus, .bar select:focus { outline: none; border-color: #ff3b5c; }
+.toolbar { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+.toolbar input, .toolbar select { flex: 1; min-width: 140px; padding: 10px 13px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 0.88rem; background: #fff; color: #1d1d1f; }
 .btn { padding: 10px 18px; border: none; border-radius: 10px; cursor: pointer; font-size: 0.88rem; font-weight: 600; }
 .btn-red { background: #ff3b5c; color: #fff; }
-.btn-red:hover { background: #e0294f; }
 .btn-gray { background: #fff; color: #1d1d1f; border: 1px solid #e5e5ea; }
-.btn-gray:hover { background: #f5f5f7; }
 .btn-del { background: #fff0f0; color: #c0392b; border: 1px solid #ffc5c5; padding: 8px 14px; font-size: 0.82rem; border-radius: 8px; cursor: pointer; font-weight: 600; }
-
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px; }
-.card { background: #fff; border-radius: 14px; border: 1px solid #e5e5ea; overflow: hidden; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: all 0.2s; }
-.card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+.card { background: #fff; border-radius: 14px; border: 1px solid #e5e5ea; overflow: hidden; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s; }
+.card:hover { transform: translateY(-4px); }
 .card.wish { border-color: #ffd0d8; }
 .cimg { width: 100%; aspect-ratio: 1; background: #f5f5f7; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; overflow: hidden; }
-.cimg img { width: 100%; height: 100%; object-fit: cover; }
+.cimg img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .cinfo { padding: 11px 12px 13px; }
-.cinfo .art { font-size: 0.68rem; color: #ff3b5c; font-weight: 700; text-transform: uppercase; }
-.cinfo .alb { font-size: 0.87rem; font-weight: 700; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.cinfo .meta { font-size: 0.74rem; color: #6e6e73; }
+.cart { font-size: 0.68rem; color: #ff3b5c; font-weight: 700; text-transform: uppercase; }
+.calb { font-size: 0.87rem; font-weight: 700; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.cmeta { font-size: 0.74rem; color: #6e6e73; }
 .wbadge { display: inline-block; background: #fff0f3; color: #ff3b5c; border: 1px solid #ffd0d8; font-size: 0.65rem; padding: 2px 7px; border-radius: 6px; font-weight: 700; margin-top: 5px; }
-
 .empty { grid-column: 1/-1; text-align: center; padding: 70px 20px; color: #6e6e73; }
 .empty .ico { font-size: 3.5rem; margin-bottom: 10px; }
-
-/* 모달 */
-.overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 200; align-items: center; justify-content: center; }
-.overlay.on { display: flex; }
+.overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); z-index: 200; justify-content: center; align-items: center; }
+.overlay.active { display: flex; }
 .modal { background: #fff; border-radius: 18px; padding: 28px; width: 92%; max-width: 490px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
 .modal h2 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; }
 .fg { margin-bottom: 12px; }
 .fg label { display: block; font-size: 0.76rem; color: #6e6e73; font-weight: 500; margin-bottom: 4px; }
-.fg input, .fg textarea {
-  width: 100%; background: #f5f5f7; border: 1px solid #e5e5ea; color: #1d1d1f;
-  padding: 10px 12px; border-radius: 10px; font-size: 0.88rem; font-family: inherit;
-}
+.fg input, .fg textarea { width: 100%; background: #f5f5f7; border: 1px solid #e5e5ea; color: #1d1d1f; padding: 10px 12px; border-radius: 10px; font-size: 0.88rem; font-family: inherit; }
 .fg input:focus, .fg textarea:focus { outline: none; border-color: #ff3b5c; background: #fff; }
-.fr { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.mact { display: flex; gap: 8px; margin-top: 20px; justify-content: flex-end; align-items: center; }
-
-/* 상세 */
+.frow { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.mact { display: flex; gap: 8px; margin-top: 20px; align-items: center; }
 .dcov { width: 100%; height: 220px; background: #f5f5f7; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 5rem; overflow: hidden; margin-bottom: 16px; }
 .dcov img { width: 100%; height: 100%; object-fit: cover; border-radius: 12px; }
-.dflds { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.dflds { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 4px; }
 .df .dl { font-size: 0.72rem; color: #6e6e73; font-weight: 500; }
-.df .dv { font-size: 0.93rem; font-weight: 600; margin-top: 1px; }
-
-/* 통계 */
+.df .dv { font-size: 0.93rem; font-weight: 600; }
 .sgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 14px; margin-bottom: 22px; }
-.scard { background: #fff; border-radius: 14px; padding: 18px; border: 1px solid #e5e5ea; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
-.scard .snum { font-size: 2rem; font-weight: 800; color: #ff3b5c; }
-.scard .slbl { font-size: 0.8rem; color: #6e6e73; margin-top: 3px; }
-.cwrap { background: #fff; border-radius: 14px; padding: 20px; border: 1px solid #e5e5ea; box-shadow: 0 2px 10px rgba(0,0,0,0.06); margin-bottom: 14px; }
+.scard { background: #fff; border-radius: 14px; padding: 18px; border: 1px solid #e5e5ea; }
+.snum { font-size: 2rem; font-weight: 800; color: #ff3b5c; }
+.slbl { font-size: 0.8rem; color: #6e6e73; margin-top: 3px; }
+.cwrap { background: #fff; border-radius: 14px; padding: 20px; border: 1px solid #e5e5ea; margin-bottom: 14px; }
 .cwrap h3 { font-size: 0.92rem; font-weight: 700; margin-bottom: 14px; }
 .brow { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
 .blbl { width: 85px; font-size: 0.76rem; color: #6e6e73; text-align: right; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .btrk { flex: 1; background: #f5f5f7; border-radius: 5px; height: 16px; overflow: hidden; }
 .bfil { height: 100%; background: linear-gradient(90deg, #ff3b5c, #ff9500); border-radius: 5px; }
 .bcnt { font-size: 0.76rem; color: #6e6e73; width: 22px; text-align: right; }
-
-@media (max-width: 580px) {
-  header { flex-direction: column; gap: 8px; padding: 12px 16px; }
-  .fr { grid-template-columns: 1fr; }
-  .modal { padding: 20px 16px; }
-}
+@media (max-width: 580px) { header { flex-direction: column; gap: 8px; padding: 12px 16px; } .frow { grid-template-columns: 1fr; } }
 </style>
 </head>
 <body>
@@ -112,15 +78,15 @@ nav button:hover:not(.on) { background: #f5f5f7; }
 </header>
 
 <nav>
-  <button class="on" id="nb-col" onclick="goTab('col',this)">📀 컬렉션</button>
-  <button id="nb-wish" onclick="goTab('wish',this)">💛 위시리스트</button>
-  <button id="nb-stat" onclick="goTab('stat',this)">📊 통계</button>
+  <button id="nb-col" class="active" onclick="goTab('col')">📀 컬렉션</button>
+  <button id="nb-wish" onclick="goTab('wish')">💛 위시리스트</button>
+  <button id="nb-stat" onclick="goTab('stat')">📊 통계</button>
 </nav>
 
-<div id="tab-col" class="tab on">
+<div id="tab-col" class="tab active">
   <div class="wrap">
-    <div class="bar">
-      <input type="text" id="sq" placeholder="🔍 아티스트, 앨범 검색..." oninput="render()">
+    <div class="toolbar">
+      <input type="text" id="sq" placeholder="아티스트, 앨범 검색..." oninput="render()">
       <select id="sg" onchange="render()"><option value="">전체 장르</option></select>
       <button class="btn btn-red" onclick="openAdd(false)">+ LP 추가</button>
     </div>
@@ -130,8 +96,8 @@ nav button:hover:not(.on) { background: #f5f5f7; }
 
 <div id="tab-wish" class="tab">
   <div class="wrap">
-    <div class="bar">
-      <input type="text" id="wq" placeholder="🔍 검색..." oninput="renderWish()">
+    <div class="toolbar">
+      <input type="text" id="wq" placeholder="검색..." oninput="renderWish()">
       <button class="btn btn-red" onclick="openAdd(true)">+ 위시리스트 추가</button>
     </div>
     <div class="grid" id="wgrid"></div>
@@ -155,239 +121,355 @@ nav button:hover:not(.on) { background: #f5f5f7; }
 </div>
 
 <!-- 추가/수정 모달 -->
-<div class="overlay" id="ov-add" onclick="bgClose(event,'ov-add')">
+<div class="overlay" id="ov-add" onclick="ovClose(event,'ov-add')">
   <div class="modal">
     <h2 id="mtitle">LP 추가</h2>
     <div class="fg"><label>앨범 커버 이미지 URL (선택)</label><input type="text" id="f-cover" placeholder="https://..."></div>
-    <div class="fr">
+    <div class="frow">
       <div class="fg"><label>아티스트 *</label><input type="text" id="f-artist" placeholder="ex. The Beatles"></div>
       <div class="fg"><label>앨범명 *</label><input type="text" id="f-album" placeholder="ex. Abbey Road"></div>
     </div>
-    <div class="fr">
+    <div class="frow">
       <div class="fg"><label>발매년도</label><input type="number" id="f-year" placeholder="1969"></div>
       <div class="fg"><label>장르</label><input type="text" id="f-genre" placeholder="ex. Rock, Jazz"></div>
     </div>
-    <div class="fr">
+    <div class="frow">
       <div class="fg"><label>레이블</label><input type="text" id="f-label" placeholder="ex. Apple Records"></div>
       <div class="fg"><label>구입가 (₩)</label><input type="number" id="f-price" placeholder="30000"></div>
     </div>
-    <div class="fr">
+    <div class="frow">
       <div class="fg"><label>구입일</label><input type="date" id="f-date"></div>
       <div class="fg"><label>구입처</label><input type="text" id="f-store" placeholder="ex. 레코드샵"></div>
     </div>
     <div class="fg"><label>메모</label><textarea id="f-memo" rows="3" placeholder="개인 메모..."></textarea></div>
     <div class="mact">
-      <button class="btn-del" id="bdel" style="display:none;margin-right:auto" onclick="doDelete()">삭제</button>
-      <button class="btn btn-gray" onclick="closeOv('ov-add')">취소</button>
-      <button class="btn btn-red" onclick="doSave()">저장</button>
+      <button class="btn-del" id="btn-del" style="display:none" onclick="doDelete()">삭제</button>
+      <div style="margin-left:auto;display:flex;gap:8px;">
+        <button class="btn btn-gray" onclick="closeOv('ov-add')">취소</button>
+        <button class="btn btn-red" onclick="doSave()">저장</button>
+      </div>
     </div>
   </div>
 </div>
 
 <!-- 상세 모달 -->
-<div class="overlay" id="ov-det" onclick="bgClose(event,'ov-det')">
+<div class="overlay" id="ov-det" onclick="ovClose(event,'ov-det')">
   <div class="modal">
     <div class="dcov" id="dcov"></div>
     <div style="margin-bottom:16px;">
-      <div style="font-size:0.74rem;color:#ff3b5c;font-weight:700;text-transform:uppercase;" id="dart"></div>
+      <div style="font-size:0.74rem;color:#ff3b5c;font-weight:700;" id="dart"></div>
       <div style="font-size:1.3rem;font-weight:800;margin-top:3px;" id="dalb"></div>
     </div>
     <div class="dflds" id="dflds"></div>
     <div id="dmwrap" style="display:none;margin-top:14px;">
-      <div style="font-size:0.72rem;color:#6e6e73;font-weight:500;">메모</div>
+      <div style="font-size:0.72rem;color:#6e6e73;">메모</div>
       <div id="dmemo" style="margin-top:4px;font-size:0.88rem;line-height:1.6;"></div>
     </div>
-    <div class="mact">
+    <div class="mact" style="margin-top:20px;justify-content:flex-end;">
       <button class="btn btn-gray" onclick="closeOv('ov-det')">닫기</button>
-      <button class="btn btn-red" onclick="editDet()">✏️ 수정</button>
+      <button class="btn btn-red" onclick="openEdit(detId)">✏️ 수정</button>
     </div>
   </div>
 </div>
 
 <script>
-var db = JSON.parse(localStorage.getItem('lp') || '[]');
-var eid = null, detId = null, wishMode = false;
+var db = [];
+var editId = null;
+var detId = null;
+var wishMode = false;
 
-function save() { localStorage.setItem('lp', JSON.stringify(db)); }
+try { db = JSON.parse(localStorage.getItem('lp-db') || '[]'); } catch(e) { db = []; }
+
+function saveDB() { try { localStorage.setItem('lp-db', JSON.stringify(db)); } catch(e) {} }
 function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+function ge(id) { return document.getElementById(id); }
+function gv(id) { var el = ge(id); return el ? el.value : ''; }
+function sv(id, v) { var el = ge(id); if (el) el.value = (v == null) ? '' : String(v); }
 
-function goTab(t, btn) {
-  document.querySelectorAll('.tab').forEach(function(el){ el.classList.remove('on'); });
-  document.querySelectorAll('nav button').forEach(function(el){ el.classList.remove('on'); });
-  document.getElementById('tab-'+t).classList.add('on');
-  btn.classList.add('on');
-  if (t === 'stat') renderStat();
-  if (t === 'wish') renderWish();
-}
+function openOv(id) { ge(id).classList.add('active'); }
+function closeOv(id) { ge(id).classList.remove('active'); }
+function ovClose(e, id) { if (e.target === ge(id)) closeOv(id); }
 
-function cov(lp) {
-  if (lp.cover) return '<div class="cimg"><img src="'+lp.cover+'" onerror="this.parentNode.innerHTML='🎵'"></div>';
-  return '<div class="cimg">🎵</div>';
-}
-
-function updateGenres() {
-  var sel = document.getElementById('sg'), cur = sel.value;
-  var gs = [];
-  db.forEach(function(l){ if (l.genre && !l.wish && gs.indexOf(l.genre)<0) gs.push(l.genre); });
-  gs.sort();
-  sel.innerHTML = '<option value="">전체 장르</option>';
-  gs.forEach(function(g){
-    var o = document.createElement('option');
-    o.value = g; o.textContent = g;
-    if (g === cur) o.selected = true;
-    sel.appendChild(o);
-  });
+function goTab(name) {
+  var tabs = ['col', 'wish', 'stat'];
+  for (var i = 0; i < tabs.length; i++) {
+    ge('tab-' + tabs[i]).classList.remove('active');
+    ge('nb-' + tabs[i]).classList.remove('active');
+  }
+  ge('tab-' + name).classList.add('active');
+  ge('nb-' + name).classList.add('active');
+  if (name === 'stat') renderStat();
+  if (name === 'wish') renderWish();
 }
 
 function updateCnt() {
-  document.getElementById('tcnt').textContent = db.filter(function(l){return !l.wish;}).length;
-  document.getElementById('wcnt').textContent = db.filter(function(l){return l.wish;}).length;
+  var c = 0, w = 0;
+  for (var i = 0; i < db.length; i++) { if (db[i].wish) w++; else c++; }
+  ge('tcnt').textContent = c;
+  ge('wcnt').textContent = w;
+}
+
+function updateGenres() {
+  var sel = ge('sg'), cur = sel.value, gs = [];
+  for (var i = 0; i < db.length; i++) {
+    if (db[i].genre && !db[i].wish && gs.indexOf(db[i].genre) < 0) gs.push(db[i].genre);
+  }
+  gs.sort();
+  sel.innerHTML = '<option value="">전체 장르</option>';
+  for (var j = 0; j < gs.length; j++) {
+    var o = document.createElement('option');
+    o.value = gs[j]; o.textContent = gs[j];
+    if (gs[j] === cur) o.selected = true;
+    sel.appendChild(o);
+  }
+}
+
+function makeCoverEl(lp) {
+  var d = document.createElement('div');
+  d.className = 'cimg';
+  if (lp.cover) {
+    var img = document.createElement('img');
+    img.src = lp.cover;
+    img.alt = '';
+    img.onerror = function() { d.innerHTML = ''; d.appendChild(document.createTextNode('🎵')); };
+    d.appendChild(img);
+  } else {
+    d.appendChild(document.createTextNode('🎵'));
+  }
+  return d;
 }
 
 function render() {
-  var q = document.getElementById('sq').value.toLowerCase();
-  var g = document.getElementById('sg').value;
-  var list = db.filter(function(l){
-    return !l.wish &&
-      (!q || l.artist.toLowerCase().indexOf(q)>=0 || l.album.toLowerCase().indexOf(q)>=0) &&
-      (!g || l.genre === g);
-  });
-  var el = document.getElementById('cgrid');
-  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ico">📀</div><div>LP가 없어요. 추가해보세요!</div></div>'; return; }
-  el.innerHTML = list.map(function(lp){
-    return '<div class="card" onclick="openDet(''+lp.id+'')">' + cov(lp) +
-      '<div class="cinfo"><div class="art">'+lp.artist+'</div><div class="alb" title="'+lp.album+'">'+lp.album+'</div>' +
-      '<div class="meta">'+[lp.year,lp.genre].filter(Boolean).join(' · ')+'</div></div></div>';
-  }).join('');
-  updateCnt(); updateGenres();
+  var q = gv('sq').toLowerCase();
+  var g = gv('sg');
+  var list = [];
+  for (var i = 0; i < db.length; i++) {
+    var l = db[i];
+    if (!l.wish
+      && (!q || l.artist.toLowerCase().indexOf(q) >= 0 || l.album.toLowerCase().indexOf(q) >= 0)
+      && (!g || l.genre === g)) list.push(l);
+  }
+  var grid = ge('cgrid');
+  grid.innerHTML = '';
+  if (!list.length) {
+    var emp = document.createElement('div');
+    emp.className = 'empty';
+    emp.innerHTML = '<div class="ico">📀</div><div>LP가 없어요. 추가해보세요!</div>';
+    grid.appendChild(emp);
+  } else {
+    for (var j = 0; j < list.length; j++) {
+      (function(lp) {
+        var card = document.createElement('div');
+        card.className = 'card';
+        card.appendChild(makeCoverEl(lp));
+        var meta = [];
+        if (lp.year) meta.push(lp.year);
+        if (lp.genre) meta.push(lp.genre);
+        var info = document.createElement('div');
+        info.className = 'cinfo';
+        info.innerHTML = '<div class="cart">' + lp.artist + '</div>'
+          + '<div class="calb">' + lp.album + '</div>'
+          + '<div class="cmeta">' + meta.join(' · ') + '</div>';
+        card.appendChild(info);
+        card.addEventListener('click', function() { openDet(lp.id); });
+        grid.appendChild(card);
+      })(list[j]);
+    }
+  }
+  updateCnt();
+  updateGenres();
 }
 
 function renderWish() {
-  var q = document.getElementById('wq').value.toLowerCase();
-  var list = db.filter(function(l){
-    return l.wish && (!q || l.artist.toLowerCase().indexOf(q)>=0 || l.album.toLowerCase().indexOf(q)>=0);
-  });
-  var el = document.getElementById('wgrid');
-  if (!list.length) { el.innerHTML = '<div class="empty"><div class="ico">💛</div><div>위시리스트가 비어있어요!</div></div>'; return; }
-  el.innerHTML = list.map(function(lp){
-    return '<div class="card wish" onclick="openDet(''+lp.id+'')">' + cov(lp) +
-      '<div class="cinfo"><div class="art">'+lp.artist+'</div><div class="alb" title="'+lp.album+'">'+lp.album+'</div>' +
-      '<div class="meta">'+[lp.year,lp.genre].filter(Boolean).join(' · ')+'</div>' +
-      '<span class="wbadge">위시</span></div></div>';
-  }).join('');
+  var q = gv('wq').toLowerCase();
+  var list = [];
+  for (var i = 0; i < db.length; i++) {
+    var l = db[i];
+    if (l.wish && (!q || l.artist.toLowerCase().indexOf(q) >= 0 || l.album.toLowerCase().indexOf(q) >= 0)) list.push(l);
+  }
+  var grid = ge('wgrid');
+  grid.innerHTML = '';
+  if (!list.length) {
+    var emp = document.createElement('div');
+    emp.className = 'empty';
+    emp.innerHTML = '<div class="ico">💛</div><div>위시리스트가 비어있어요!</div>';
+    grid.appendChild(emp);
+  } else {
+    for (var j = 0; j < list.length; j++) {
+      (function(lp) {
+        var card = document.createElement('div');
+        card.className = 'card wish';
+        card.appendChild(makeCoverEl(lp));
+        var info = document.createElement('div');
+        info.className = 'cinfo';
+        info.innerHTML = '<div class="cart">' + lp.artist + '</div>'
+          + '<div class="calb">' + lp.album + '</div>'
+          + '<div class="cmeta">' + (lp.year || '') + '</div>'
+          + '<span class="wbadge">위시</span>';
+        card.appendChild(info);
+        card.addEventListener('click', function() { openDet(lp.id); });
+        grid.appendChild(card);
+      })(list[j]);
+    }
+  }
   updateCnt();
 }
 
 function renderStat() {
-  var col = db.filter(function(l){return !l.wish;});
-  document.getElementById('st').textContent = col.length;
-  var gs = []; col.forEach(function(l){if(l.genre && gs.indexOf(l.genre)<0)gs.push(l.genre);});
-  document.getElementById('sg2').textContent = gs.length;
-  var as = []; col.forEach(function(l){if(as.indexOf(l.artist)<0)as.push(l.artist);});
-  document.getElementById('sa').textContent = as.length;
-  var tot = col.reduce(function(s,l){return s+(parseInt(l.price)||0);},0);
-  document.getElementById('sp').textContent = '₩'+tot.toLocaleString();
+  var col = [];
+  for (var i = 0; i < db.length; i++) { if (!db[i].wish) col.push(db[i]); }
+  ge('st').textContent = col.length;
+  var gs = [], as = [];
+  for (var j = 0; j < col.length; j++) {
+    if (col[j].genre && gs.indexOf(col[j].genre) < 0) gs.push(col[j].genre);
+    if (as.indexOf(col[j].artist) < 0) as.push(col[j].artist);
+  }
+  ge('sg2').textContent = gs.length;
+  ge('sa').textContent = as.length;
+  var tot = 0;
+  for (var k = 0; k < col.length; k++) tot += (parseInt(col[k].price) || 0);
+  ge('sp').textContent = '₩' + tot.toLocaleString();
   var gm = {}, ym = {};
-  col.forEach(function(l){
-    if(l.genre) gm[l.genre]=(gm[l.genre]||0)+1;
-    if(l.year) ym[l.year]=(ym[l.year]||0)+1;
-  });
+  for (var n = 0; n < col.length; n++) {
+    if (col[n].genre) gm[col[n].genre] = (gm[col[n].genre] || 0) + 1;
+    if (col[n].year) ym[col[n].year] = (ym[col[n].year] || 0) + 1;
+  }
   drawBar('cg', gm, false);
   drawBar('cy', ym, true);
 }
 
-function drawBar(id, map, sortK) {
-  var el = document.getElementById(id);
-  var ent = Object.keys(map).map(function(k){return [k,map[k]];});
-  ent.sort(sortK ? function(a,b){return a[0]-b[0];} : function(a,b){return b[1]-a[1];});
-  var mx = Math.max.apply(null, ent.map(function(e){return e[1];}));
-  if (!ent.length) { el.innerHTML = '<p style="font-size:0.82rem;color:#6e6e73;">데이터 없음</p>'; return; }
-  el.innerHTML = ent.slice(0,10).map(function(e){
-    return '<div class="brow"><div class="blbl" title="'+e[0]+'">'+e[0]+'</div>' +
-      '<div class="btrk"><div class="bfil" style="width:'+(e[1]/mx*100).toFixed(1)+'%"></div></div>' +
-      '<div class="bcnt">'+e[1]+'</div></div>';
-  }).join('');
+function drawBar(id, map, sortByKey) {
+  var cont = ge(id);
+  var ent = [];
+  for (var k in map) ent.push([k, map[k]]);
+  if (!ent.length) { cont.innerHTML = '<p style="font-size:0.82rem;color:#6e6e73;">데이터 없음</p>'; return; }
+  ent.sort(sortByKey ? function(a,b){return a[0]-b[0];} : function(a,b){return b[1]-a[1];});
+  var mx = 0;
+  for (var i = 0; i < ent.length; i++) if (ent[i][1] > mx) mx = ent[i][1];
+  var html = '';
+  var lim = Math.min(ent.length, 10);
+  for (var j = 0; j < lim; j++) {
+    var pct = (ent[j][1] / mx * 100).toFixed(1);
+    html += '<div class="brow"><div class="blbl">' + ent[j][0] + '</div>'
+      + '<div class="btrk"><div class="bfil" style="width:' + pct + '%"></div></div>'
+      + '<div class="bcnt">' + ent[j][1] + '</div></div>';
+  }
+  cont.innerHTML = html;
 }
 
-function getF(id) { return document.getElementById('f-'+id).value; }
-function setF(id, v) { document.getElementById('f-'+id).value = v || ''; }
-
 function openAdd(wish) {
-  wishMode = wish; eid = null;
-  document.getElementById('mtitle').textContent = wish ? '위시리스트 추가' : 'LP 추가';
-  ['cover','artist','album','year','genre','label','price','date','store','memo'].forEach(function(f){ setF(f,''); });
-  document.getElementById('bdel').style.display = 'none';
-  document.getElementById('ov-add').classList.add('on');
+  wishMode = wish;
+  editId = null;
+  ge('mtitle').textContent = wish ? '위시리스트 추가' : 'LP 추가';
+  var flds = ['cover','artist','album','year','genre','label','price','date','store','memo'];
+  for (var i = 0; i < flds.length; i++) sv('f-' + flds[i], '');
+  ge('btn-del').style.display = 'none';
+  openOv('ov-add');
 }
 
 function openEdit(id) {
-  var lp = db.filter(function(l){return l.id===id;})[0]; if (!lp) return;
-  eid = id; wishMode = lp.wish;
-  document.getElementById('mtitle').textContent = 'LP 수정';
-  ['cover','artist','album','year','genre','label','price','date','store','memo'].forEach(function(f){ setF(f, lp[f]); });
-  document.getElementById('bdel').style.display = 'inline-block';
+  var lp = null;
+  for (var i = 0; i < db.length; i++) { if (db[i].id === id) { lp = db[i]; break; } }
+  if (!lp) return;
+  editId = id;
+  wishMode = lp.wish;
+  ge('mtitle').textContent = 'LP 수정';
+  var flds = ['cover','artist','album','year','genre','label','price','date','store','memo'];
+  for (var i = 0; i < flds.length; i++) sv('f-' + flds[i], lp[flds[i]]);
+  ge('btn-del').style.display = 'inline-block';
   closeOv('ov-det');
-  document.getElementById('ov-add').classList.add('on');
+  openOv('ov-add');
 }
 
 function doSave() {
-  var artist = getF('artist').trim(), album = getF('album').trim();
+  var artist = gv('f-artist').trim();
+  var album = gv('f-album').trim();
   if (!artist || !album) { alert('아티스트와 앨범명은 필수입니다.'); return; }
-  var lp = { id: eid||uid(), wish: wishMode,
+  var lp = {
+    id: editId || uid(), wish: wishMode,
     artist: artist, album: album,
-    year: getF('year'), genre: getF('genre').trim(), label: getF('label').trim(),
-    price: getF('price'), date: getF('date'), store: getF('store').trim(),
-    memo: getF('memo').trim(), cover: getF('cover').trim()
+    year: gv('f-year'), genre: gv('f-genre').trim(),
+    label: gv('f-label').trim(), price: gv('f-price'),
+    date: gv('f-date'), store: gv('f-store').trim(),
+    memo: gv('f-memo').trim(), cover: gv('f-cover').trim()
   };
-  if (eid) { for(var i=0;i<db.length;i++){if(db[i].id===eid){db[i]=lp;break;}} }
-  else db.unshift(lp);
-  save(); closeOv('ov-add'); render(); renderWish(); updateCnt(); updateGenres();
+  if (editId) {
+    for (var i = 0; i < db.length; i++) { if (db[i].id === editId) { db[i] = lp; break; } }
+  } else {
+    db.unshift(lp);
+  }
+  saveDB();
+  closeOv('ov-add');
+  render();
+  renderWish();
 }
 
 function doDelete() {
   if (!confirm('삭제하시겠어요?')) return;
-  db = db.filter(function(l){return l.id!==eid;});
-  save(); closeOv('ov-add'); render(); renderWish(); updateCnt(); updateGenres();
+  var nd = [];
+  for (var i = 0; i < db.length; i++) { if (db[i].id !== editId) nd.push(db[i]); }
+  db = nd;
+  saveDB();
+  closeOv('ov-add');
+  render();
+  renderWish();
 }
 
 function openDet(id) {
   detId = id;
-  var lp = db.filter(function(l){return l.id===id;})[0]; if (!lp) return;
-  var dcov = document.getElementById('dcov');
-  dcov.innerHTML = lp.cover ? '<img src="'+lp.cover+'" onerror="this.parentNode.innerHTML='🎵'">' : '🎵';
-  document.getElementById('dart').textContent = lp.artist;
-  document.getElementById('dalb').textContent = lp.album;
-  var flds = [['발매년도',lp.year],['장르',lp.genre],['레이블',lp.label],
-    ['구입가', lp.price ? '₩'+parseInt(lp.price).toLocaleString() : ''],
-    ['구입일',lp.date],['구입처',lp.store]].filter(function(f){return f[1];});
-  document.getElementById('dflds').innerHTML = flds.map(function(f){
-    return '<div class="df"><div class="dl">'+f[0]+'</div><div class="dv">'+f[1]+'</div></div>';
-  }).join('');
-  var mw = document.getElementById('dmwrap');
-  if (lp.memo) { document.getElementById('dmemo').textContent = lp.memo; mw.style.display='block'; }
-  else mw.style.display = 'none';
-  document.getElementById('ov-det').classList.add('on');
+  var lp = null;
+  for (var i = 0; i < db.length; i++) { if (db[i].id === id) { lp = db[i]; break; } }
+  if (!lp) return;
+  var dcov = ge('dcov');
+  dcov.innerHTML = '';
+  if (lp.cover) {
+    var img = document.createElement('img');
+    img.src = lp.cover;
+    img.onerror = function() { dcov.innerHTML = ''; dcov.appendChild(document.createTextNode('🎵')); };
+    dcov.appendChild(img);
+  } else {
+    dcov.appendChild(document.createTextNode('🎵'));
+  }
+  ge('dart').textContent = lp.artist;
+  ge('dalb').textContent = lp.album;
+  var pairs = [
+    ['발매년도', lp.year], ['장르', lp.genre], ['레이블', lp.label],
+    ['구입가', lp.price ? '₩' + parseInt(lp.price).toLocaleString() : ''],
+    ['구입일', lp.date], ['구입처', lp.store]
+  ];
+  var html = '';
+  for (var i = 0; i < pairs.length; i++) {
+    if (pairs[i][1]) html += '<div class="df"><div class="dl">' + pairs[i][0] + '</div><div class="dv">' + pairs[i][1] + '</div></div>';
+  }
+  ge('dflds').innerHTML = html;
+  if (lp.memo) { ge('dmemo').textContent = lp.memo; ge('dmwrap').style.display = 'block'; }
+  else ge('dmwrap').style.display = 'none';
+  openOv('ov-det');
 }
-
-function editDet() { openEdit(detId); }
-
-function closeOv(id) { document.getElementById(id).classList.remove('on'); }
-function bgClose(e, id) { if (e.target.id === id) closeOv(id); }
 
 function doCSV() {
   var cols = ['아티스트','앨범','연도','장르','레이블','구입가','구입일','구입처','메모'];
-  var rows = db.filter(function(l){return !l.wish;}).map(function(l){
-    return [l.artist,l.album,l.year,l.genre,l.label,l.price,l.date,l.store,l.memo]
-      .map(function(v){return '"'+(v||'').replace(/"/g,'""')+'"';}).join(',');
-  });
-  var csv = '﻿' + [cols.join(',')].concat(rows).join('
+  var rows = [];
+  for (var i = 0; i < db.length; i++) {
+    if (db[i].wish) continue;
+    var l = db[i];
+    var row = [l.artist,l.album,l.year,l.genre,l.label,l.price,l.date,l.store,l.memo]
+      .map(function(v) { return '"' + (v || '').replace(/"/g,'""') + '"'; }).join(',');
+    rows.push(row);
+  }
+  var csv = '﻿' + cols.join(',') + '
+' + rows.join('
 ');
   var a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
-  a.download = 'lp.csv'; a.click();
+  a.href = URL.createObjectURL(new Blob([csv], {type:'text/csv'}));
+  a.download = 'lp.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
-render(); updateCnt();
+render();
+updateCnt();
 </script>
 </body>
 </html>
